@@ -59,7 +59,7 @@ class AdminForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormID() {
+  public function getFormId() {
     return 'mimemail_admin_form';
   }
 

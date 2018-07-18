@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2885904 by pcambra, colan, TR: Default filter format is non-existent
 - #2986156 by TR: getFormID() should be getFormId()
 
 Mime Mail 8.x-1.0-alpha2, 2017-05-14

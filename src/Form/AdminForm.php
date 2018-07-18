@@ -243,7 +243,7 @@ class AdminForm extends ConfigFormBase {
       }
     }
     else {
-      drupal_set_message(t('Please choose a mail engine.'), 'error');
+      $this->messenger()->addError($this->t('Please choose a mail engine.'));
     }*/
 
 

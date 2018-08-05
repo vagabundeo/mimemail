@@ -63,7 +63,7 @@ function mimemail_mailengine($op, $message = []) {
       // as an additional parameter instead of in the header.
       // However, if PHP's 'safe_mode' is on, this is not allowed.
       if (isset($message['headers']['Return-Path']) && !ini_get('safe_mode')) {
-        $return_path_set = strpos(ini_get('sendmail_path'), ' -f');
+        $return_path_set = mb_strpos(ini_get('sendmail_path'), ' -f');
         if (!$return_path_set) {
           $return_path = trim($message['headers']['Return-Path'], '<>');
           unset($message['headers']['Return-Path']);
@@ -80,7 +80,7 @@ function mimemail_mailengine($op, $message = []) {
       $result = TRUE;
       foreach ($recipients as $to) {
         if (isset($return_path) && !empty($return_path)) {
-          if (isset($_SERVER['WINDIR']) || strpos($_SERVER['SERVER_SOFTWARE'], 'Win32') !== FALSE) {
+          if (isset($_SERVER['WINDIR']) || mb_strpos($_SERVER['SERVER_SOFTWARE'], 'Win32') !== FALSE) {
             // On Windows, PHP will use the value of sendmail_from for the
             // Return-Path header.
             $old_from = ini_get('sendmail_from');

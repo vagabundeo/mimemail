@@ -180,7 +180,7 @@ class MimeMailFormatHelper {
     $encoding = '8Bit';
     $body = explode("\n", $content);
     foreach ($body as $line) {
-      if (Unicode::strlen($line) > 998) {
+      if (mb_strlen($line) > 998) {
         $encoding = 'base64';
         break;
       }
@@ -249,7 +249,7 @@ class MimeMailFormatHelper {
     if (isset($file) && (@is_file($file) || $content)) {
       $public_path = \Drupal::config('system.file')->get('default_scheme') . '://';
       $no_access = !\Drupal::currentUser()->hasPermission('send arbitrary files');
-      $not_in_public_path = strpos(\Drupal::service('file_system')->realpath($file), \Drupal::service('file_system')->realpath($public_path)) !== 0;
+      $not_in_public_path = mb_strpos(\Drupal::service('file_system')->realpath($file), \Drupal::service('file_system')->realpath($public_path)) !== 0;
       if (@is_file($file) && $not_in_public_path && $no_access) {
         return $url;
       }
@@ -434,7 +434,7 @@ class MimeMailFormatHelper {
       if (isset($part['Content-Disposition'])) {
         $part_headers['Content-Disposition'] = $part['Content-Disposition'];
       }
-      elseif (strpos($part['Content-Type'], 'multipart/alternative') === FALSE) {
+      elseif (mb_strpos($part['Content-Type'], 'multipart/alternative') === FALSE) {
         $part_headers['Content-Disposition'] = 'inline';
       }
 
@@ -506,7 +506,7 @@ class MimeMailFormatHelper {
       // Fold headers if they're too long.
       // A CRLF may be inserted before any WSP.
       // @see http://tools.ietf.org/html/rfc2822#section-2.2.3
-      if (Unicode::strlen($value) > 60) {
+      if (mb_strlen($value) > 60) {
         // If there's a semicolon, use that to separate.
         if (count($array = preg_split('/;\s*/', $value)) > 1) {
           $value = trim(join(";$crlf ", $array));

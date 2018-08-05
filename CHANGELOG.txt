@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2986145 by TR: Use mb_* functions instead of Unicode::* methods
 - #2986124 by TR, riddhi.addweb: Coding standards: Short array syntax
 - #2986160 by TR: drupal_get_message() and drupal_set_message() replaced by Messenger service
 - #2885904 by pcambra, colan, TR: Default filter format is non-existent

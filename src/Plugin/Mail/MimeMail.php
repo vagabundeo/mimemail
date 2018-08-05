@@ -108,10 +108,10 @@ class MimeMail implements MailInterface {
       && variable_get('mimemail_engine', 'mimemail') == 'mimemail') {
       $mimemail_name = variable_get('mimemail_name', $site_name);
       $mimemail_mail = variable_get('mimemail_mail', $site_mail);
-      $from = array(
+      $from = [
         'name' => !empty($mimemail_name) ? $mimemail_name : $site_name,
         'mail' => !empty($mimemail_mail) ? $mimemail_mail : $site_mail,
-      );
+      ];
     }*/
     // Override site mails default sender when using default engine.
     if ((empty($from) || $from == $site_mail)) {
@@ -142,7 +142,7 @@ class MimeMail implements MailInterface {
     }
 
     // Removing newline character introduced by _drupal_wrap_mail_line();
-    $subject = str_replace(array("\n"), '', trim(MailFormatHelper::htmlToText($subject)));
+    $subject = str_replace(["\n"], '', trim(MailFormatHelper::htmlToText($subject)));
 
     $hook = [
       'mimemail_message__' . $key,

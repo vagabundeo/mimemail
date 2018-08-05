@@ -34,14 +34,14 @@ function mimemail_help($route_name, RouteMatchInterface $route_match) {
  * @return boolean
  *   Returns TRUE if the operation was successful or FALSE if it was not.
  */
-function mimemail_mailengine($op, $message = array()) {
+function mimemail_mailengine($op, $message = []) {
   //module_load_include('inc', 'mimemail');
   /*switch ($op) {
     case 'list':
-      $engine = array(
+      $engine = [
         'name' => t('Mime Mail'),
         'description' => t("Default mailing engine."),
-      );
+      ];
       return $engine;
     case 'settings':
       // Not implemented.
@@ -50,13 +50,13 @@ function mimemail_mailengine($op, $message = array()) {
     case 'single':
     case 'send':
       // Default values.
-      $default = array(
+      $default = [
         'to' => '',
         'subject' => '',
         'body' => '',
         'from' => '',
         'headers' => ''
-      );
+      ];
       $message = array_merge($default, $message);
 
       // If 'Return-Path' isn't already set in php.ini, we pass it separately
@@ -72,7 +72,7 @@ function mimemail_mailengine($op, $message = array()) {
 
       $crlf = variable_get('mimemail_crlf', MAIL_LINE_ENDINGS);
 
-      $recipients = (!is_array($message['to'])) ? array($message['to']) : $message['to'];
+      $recipients = (!is_array($message['to'])) ? [$message['to']] : $message['to'];
       $subject = mime_header_encode($message['subject']);
       $body = preg_replace('@\r?\n@', $crlf, $message['body']);
       $headers = mimemail_rfc_headers($message['headers']);

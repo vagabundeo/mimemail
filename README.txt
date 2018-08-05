@@ -50,10 +50,10 @@
   This can be done through the web by visiting admin/config/system/mailsystem
   or in a program as follows:
 
-  mailsystem_set(array(
+  mailsystem_set([
     '{$module}_{$key}' => 'MimeMailSystem', // Just messages with $key sent by $module.
     '{$module}' => 'MimeMailSystem', // All messages sent by $module.
-  ));
+  ]);
 
   You can use the following optional parameters to build the e-mail:
     'plain':

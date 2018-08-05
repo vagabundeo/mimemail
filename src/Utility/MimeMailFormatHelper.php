@@ -39,7 +39,7 @@ class MimeMailFormatHelper {
         }
       }
       // It's an array of address items.
-      $addresses = array();
+      $addresses = [];
       foreach ($address as $a) {
         $addresses[] = static::mimeMailAddress($a);
       }
@@ -87,7 +87,7 @@ class MimeMailFormatHelper {
    * The first mime part is a multipart/alternative containing mime-encoded sub-parts for
    * HTML and plaintext. Each subsequent part is the required image or attachment.
    */
-  public static function mimeMailHtmlBody($body, $subject, $plain = FALSE, $plaintext = NULL, $attachments = array()) {
+  public static function mimeMailHtmlBody($body, $subject, $plain = FALSE, $plaintext = NULL, $attachments = []) {
     if (empty($plaintext)) {
       // @todo Remove once filter_xss() can handle direct descendant selectors in inline CSS.
       // @see http://drupal.org/node/1116930
@@ -100,24 +100,24 @@ class MimeMailFormatHelper {
       // Plain mail without attachment.
       if (empty($attachments)) {
         $content_type = 'text/plain';
-        return array(
+        return [
           'body' => $plaintext,
-          'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
-        );
+          'headers' => ['Content-Type' => 'text/plain; charset=utf-8'],
+        ];
       }
       // Plain mail with attachement.
       else {
         $content_type = 'multipart/mixed';
-        $parts = array(array(
+        $parts = [[
           'content' => $plaintext,
           'Content-Type' => 'text/plain; charset=utf-8',
-        ));
+        ]];
       }
     }
     else {
       $content_type = 'multipart/mixed';
 
-      $plaintext_part = array('Content-Type' => 'text/plain; charset=utf-8', 'content' => $plaintext);
+      $plaintext_part = ['Content-Type' => 'text/plain; charset=utf-8', 'content' => $plaintext];
 
       // Expand all local links.
       $pattern = '/(<a[^>]+href=")([^"]*)/mi';
@@ -125,14 +125,14 @@ class MimeMailFormatHelper {
 
       $mime_parts = static::mimeMailExtractFiles($body);
 
-      $content = array($plaintext_part, array_shift($mime_parts));
+      $content = [$plaintext_part, array_shift($mime_parts)];
       $content = static::mimeMailMultipartBody($content, 'multipart/alternative', TRUE);
-      $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
+      $parts = [['Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']]];
 
       if ($mime_parts) {
         $parts = array_merge($parts, $mime_parts);
         $content = static::mimeMailMultipartBody($parts, 'multipart/related; type="multipart/alternative"', TRUE);
-        $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
+        $parts = [['Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']]];
       }
     }
 
@@ -159,18 +159,19 @@ class MimeMailFormatHelper {
    *
    * @return array
    *   An array containing the document body and the extracted files like the following.
-   *     array(
-   *       array(
+   *     [
+   *       [
    *         'name' => document name
    *         'content' => html text, local image urls replaced by Content-IDs,
-   *         'Content-Type' => 'text/html; charset=utf-8')
-   *       array(
+   *         'Content-Type' => 'text/html; charset=utf-8',
+           ],
+   *       [
    *         'name' => file name,
    *         'file' => reference to local file,
    *         'Content-ID' => generated Content-ID,
-   *         'Content-Type' => derived using mime_content_type if available, educated guess otherwise
-   *        )
-   *     )
+   *         'Content-Type' => derived using mime_content_type if available, educated guess otherwise,
+   *       ],
+   *     ]
    */
   public static function mimeMailExtractFiles($html) {
     $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |[\s]src=[\'"]?)([^\'>"]+)([\'"]?)/mis';
@@ -188,11 +189,11 @@ class MimeMailFormatHelper {
       $content = rtrim(chunk_split(base64_encode($content)));
     }
 
-    $document = array(array(
+    $document = [[
       'Content-Type' => "text/html; charset=utf-8",
       'Content-Transfer-Encoding' => $encoding,
       'content' => $content,
-    ));
+    ]];
 
     $files = static::mimeMailFile();
 
@@ -217,8 +218,8 @@ class MimeMailFormatHelper {
    *   The Content-ID and/or an array of the files on success or the URL on failure.
    */
   public static function mimeMailFile($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'inline') {
-    static $files = array();
-    static $ids = array();
+    static $files = [];
+    static $ids = [];
 
     if ($url) {
       $image = preg_match('!\.(png|gif|jpg|jpeg)$!i', $url);
@@ -267,13 +268,13 @@ class MimeMailFormatHelper {
         return 'cid:'. $ids[$id];
       }
 
-      $new_file = array(
+      $new_file = [
         'name' => $name,
         'file' => $file,
         'Content-ID' => $id,
         'Content-Disposition' => $disposition,
         'Content-Type' => $type,
-      );
+      ];
 
       $files[] = $new_file;
       $ids[$id] = $id;
@@ -286,8 +287,8 @@ class MimeMailFormatHelper {
     }
 
     $ret = $files;
-    $files = array();
-    $ids = array();
+    $files = [];
+    $ids = [];
 
     return $ret;
   }
@@ -364,13 +365,13 @@ class MimeMailFormatHelper {
     }
 
     parse_str($query, $arr);
-    $options = array(
-      'query' => !empty($arr) ? $arr : array(),
+    $options = [
+      'query' => !empty($arr) ? $arr : [],
       'fragment' => $fragment,
       'absolute' => TRUE,
       'language' => $language,
       'prefix' => $prefix,
-    );
+    ];
 
     $url = Url::fromUserInput($path, $options)->toString();
 
@@ -413,16 +414,14 @@ class MimeMailFormatHelper {
 
     $boundary = sha1(uniqid($_SERVER['REQUEST_TIME'], TRUE)) . $part_num++;
     $body = '';
-    $headers = array(
-      'Content-Type' => "$content_type; boundary=\"$boundary\"",
-    );
+    $headers = ['Content-Type' => "$content_type; boundary=\"$boundary\""];
     if (!$sub_part) {
       $headers['MIME-Version'] = '1.0';
       $body = "This is a multi-part message in MIME format.\n";
     }
 
     foreach ($parts as $part) {
-      $part_headers = array();
+      $part_headers = [];
 
       if (isset($part['Content-ID'])) {
         $part_headers['Content-ID'] = '<' . $part['Content-ID'] . '>';
@@ -483,7 +482,7 @@ class MimeMailFormatHelper {
     }
     $body .= "\n--$boundary--\n";
 
-    return array('headers' => $headers, 'body' => $body);
+    return ['headers' => $headers, 'body' => $body];
   }
 
   /**

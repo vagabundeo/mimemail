@@ -1,0 +1,15 @@
+mimemail.settings:
+  type: config_object
+  mapping:
+    format:
+      type: string
+      label: 'E-mail format'
+    name:
+      type: string
+      label: 'Sender name'
+    mail:
+      type: email
+      label: 'Sender e-mail address'
+    linkonly:
+      type: boolean
+      label: 'Disables the embedding of images, all images will be links to external content'

@@ -80,20 +80,19 @@ class AdminForm extends ConfigFormBase {
     $form['mimemail']['name'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Sender name'),
-      '#default_value' => $config->get('name') ? $config->get('name') : \Drupal::config('system.site')->get('name'),
+      '#default_value' => $config->get('name') ? $config->get('name') : $this->config('system.site')->get('name'),
       '#size'          => 60,
       '#maxlength'     => 128,
       '#description'   => $this->t('The name that all site emails will be from when using default engine.'),
     ];
     $form['mimemail']['mail'] = [
-      '#type'          => 'textfield',
+      '#type'          => 'email',
       '#title'         => $this->t('Sender e-mail address'),
-      '#default_value' => $config->get('mail') ? $config->get('mail') : \Drupal::config('system.site')->get('mail'),
+      '#default_value' => $config->get('mail') ? $config->get('mail') : $this->config('system.site')->get('mail'),
       '#size'          => 60,
       '#maxlength'     => 128,
       '#description'   => $this->t('The email address that all site e-mails will be from when using default engine.'),
     ];
-
 
     // Get a list of all formats.
     $formats = filter_formats();
@@ -104,7 +103,7 @@ class AdminForm extends ConfigFormBase {
     $form['mimemail']['format'] = [
       '#type' => 'select',
       '#title' => $this->t('E-mail format'),
-      '#default_value' => $this->config('mimemail.settings')->get('format'),
+      '#default_value' => $config->get('format'),
       '#options' => $format_options,
       '#access' => count($formats) > 1,
       '#attributes' => ['class' => ['filter-list']],
@@ -246,8 +245,6 @@ class AdminForm extends ConfigFormBase {
       $this->messenger()->addError($this->t('Please choose a mail engine.'));
     }*/
 
-
-
     return parent::buildForm($form, $form_state);
   }
 
@@ -262,24 +259,16 @@ class AdminForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('mimemail.settings');
-
-    // Set the default mimemail format.
-    if ($form_state->hasValue('format')) {
-      $config->set('format', $form_state->getValue('format'));
+    $config
+      ->set('format', $form_state->getValue('format'))
+      ->set('name', $form_state->getValue('name'))
+      ->set('mail', $form_state->getValue('mail'));
+    if ($form_state->hasValue('linkonly')) {
+      $config->set('linkonly', $form_state->getValue('linkonly'));
     }
-
-    // Set the default mimemail site name.
-    if ($form_state->hasValue('name')) {
-      $config->set('name', $form_state->getValue('name'));
-    }
-
-    // Set the default mimemail site email.
-    if ($form_state->hasValue('mail')) {
-      $config->set('mail', $form_state->getValue('mail'));
-    }
-
-    // Finally save the configuration.
     $config->save();
+
+    parent::submitForm($form, $form_state);
   }
 
 }

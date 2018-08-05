@@ -4,6 +4,7 @@ namespace Drupal\mimemail\Plugin\Mail;
 
 use Drupal\Core\Mail\MailInterface;
 use Drupal\Core\Mail\MailFormatHelper;
+use Drupal\Core\Mail\Plugin\Mail\PhpMail;
 use Drupal\mimemail\Utility\MimeMailFormatHelper;
 
 /**
@@ -15,7 +16,7 @@ use Drupal\mimemail\Utility\MimeMailFormatHelper;
  *   description = @Translation("Sends MIME-encoded emails with embedded images and attachments..")
  * )
  */
-class MimeMail implements MailInterface {
+class MimeMail extends PhpMail {
 
   /**
    * {@inheritdoc}
@@ -46,13 +47,6 @@ class MimeMail implements MailInterface {
     $message =  $this->prepareMessage($message);
 
     return $message;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function mail(array $message) {
-    // @TODO
   }
 
   /**

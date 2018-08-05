@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2938963 by hansfn, TR, colan: Sender'Mime Mail mailer fails without explanation
 - #2985911 by TR: Port test cases to D8
 - #2983816 by TR, Xano: Add basic config schemas / fix AdminForm
 - #2986145 by TR: Use mb_* functions instead of Unicode::* methods

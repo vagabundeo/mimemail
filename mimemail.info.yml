@@ -1,8 +1,8 @@
-package: 'Mail'
 name: 'Mime Mail'
-description: 'Sends MIME-encoded emails with embedded images and attachments.'
 type: module
+description: 'Sends MIME-encoded emails with embedded images and attachments.'
+package: Mail
 core: 8.x
 dependencies:
- - mailsystem
-configure: 'mimemail.settings'
+  - mailsystem:mailsystem
+configure: mimemail.settings

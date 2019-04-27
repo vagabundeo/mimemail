@@ -2,7 +2,6 @@
 
 namespace Drupal\mimemail\Plugin\Mail;
 
-use Drupal\Core\Mail\MailInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Mail\Plugin\Mail\PhpMail;
 use Drupal\mimemail\Utility\MimeMailFormatHelper;

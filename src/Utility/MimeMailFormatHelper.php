@@ -268,11 +268,11 @@ class MimeMailFormatHelper {
         $type = ($name) ? \Drupal::service('file.mime_type.guesser')->guess($name) : \Drupal::service('file.mime_type.guesser')->guess($file);
       }
 
-      $id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
+      $id = md5($file) . '@' . $_SERVER['HTTP_HOST'];
 
       // Prevent duplicate items.
       if (isset($ids[$id])) {
-        return 'cid:'. $ids[$id];
+        return 'cid:' . $ids[$id];
       }
 
       $new_file = [
@@ -359,7 +359,7 @@ class MimeMailFormatHelper {
 
     // Default language settings.
     $prefix = '';
-    $language =  \Drupal::languageManager()->getDefaultLanguage();
+    $language = \Drupal::languageManager()->getDefaultLanguage();
 
     // Check for language prefix.
     $args = explode('/', $path);
@@ -402,8 +402,8 @@ class MimeMailFormatHelper {
    *   - file: A string containing file content.
    *   - Content-Type: A string containing the content type of either file or
    *     content. Mandatory for content, optional for file. If not present, it
-   *     will be derived from file the file if
-   *     mime_content_type is available. If not, application/octet-stream is used.
+   *     will be derived from file the file if mime_content_type is available.
+   *     If not, application/octet-stream is used.
    *   - Content-Disposition: (optional) A string containing the disposition.
    *     Defaults to inline.
    *   - Content-Transfer-Encoding: (optional) Base64 is assumed for files,
@@ -582,6 +582,7 @@ class MimeMailFormatHelper {
    * Callback for preg_replace_callback.
    *
    * @param $matches
+   *
    * @return string
    */
   public static function expandLinks($matches) {
@@ -592,10 +593,11 @@ class MimeMailFormatHelper {
    * Callback for preg_replace_callback.
    *
    * @param $matches
+   *
    * @return string
    */
   public static function replaceFiles($matches) {
-    return stripslashes($matches[1]) .self::mimeMailFile($matches[2]) . stripslashes($matches[3]);
+    return stripslashes($matches[1]) . self::mimeMailFile($matches[2]) . stripslashes($matches[3]);
   }
 
 }

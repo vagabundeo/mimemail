@@ -51,7 +51,8 @@ class MimeMailWebTest extends BrowserTestBase {
     $this->drupalPostForm(
       'admin/config/system/mimemail',
       ['linkonly' => TRUE],
-      'Save configuration');
+      'Save configuration'
+    );
 
     $url = 'public://' . $this->randomMachineName() . ' ' . $this->randomMachineName() . '.jpg';
     $result = MimeMailFormatHelper::mimeMailUrl($url, TRUE);

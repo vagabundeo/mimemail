@@ -89,7 +89,7 @@ class MimeMailFormatHelper {
    *   - body: A string containing the MIME-encoded multipart body of a mail.
    *   - headers: An array that includes some headers for the mail to be sent.
    */
-  public static function mimeMailHtmlBody($body, $subject, $plain = FALSE, $plaintext = NULL, $attachments = []) {
+  public static function mimeMailHtmlBody($body, $subject, $plain = FALSE, $plaintext = NULL, array $attachments = []) {
     if (empty($plaintext)) {
       // @todo Remove once filter_xss() can handle direct descendant selectors in inline CSS.
       // @see http://drupal.org/node/1116930
@@ -422,7 +422,7 @@ class MimeMailFormatHelper {
    *   - body: A string containing the MIME-encoded multipart body of a mail.
    *   - headers: An array that includes some headers for the mail to be sent.
    */
-  public static function mimeMailMultipartBody($parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part = FALSE) {
+  public static function mimeMailMultipartBody(array $parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part = FALSE) {
     // Control variable to avoid boundary collision.
     static $part_num = 0;
 
@@ -510,7 +510,7 @@ class MimeMailFormatHelper {
    * @return string
    *   A string containing the headers.
    */
-  public static function mimeMailRfcHeaders($headers) {
+  public static function mimeMailRfcHeaders(array $headers) {
     $header = '';
     $crlf = Settings::get('mail_line_endings', PHP_EOL);
     foreach ($headers as $key => $value) {
@@ -545,7 +545,7 @@ class MimeMailFormatHelper {
    * @return array
    *   Overwritten headers.
    */
-  public static function mimeMailHeaders($headers, $from = NULL) {
+  public static function mimeMailHeaders(array $headers, $from = NULL) {
     $default_from = \Drupal::config('system.site')->get('mail');
 
     // Overwrite standard headers.

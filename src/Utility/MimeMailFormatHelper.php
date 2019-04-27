@@ -20,7 +20,7 @@ class MimeMailFormatHelper {
    *
    * @param mixed $address
    *   A user object, a text email address or an array containing name, mail.
-   * @param boolean $simplify
+   * @param bool $simplify
    *   Determines if the address needs to be simplified. Defaults to FALSE.
    *
    * @return string
@@ -57,7 +57,7 @@ class MimeMailFormatHelper {
     }
 
     // It's formatted or unformatted string.
-    // @todo: shouldn't assume it's valid - should try to re-parse
+    // @todo Shouldn't assume it's valid - should try to re-parse.
     if (is_string($address)) {
       return $address;
     }
@@ -66,14 +66,19 @@ class MimeMailFormatHelper {
   }
 
   /**
-   * Generate a multipart message body with a text alternative for some HTML text.
+   * Generates a multipart message body with a plaintext alternative.
+   *
+   * The first mime part is a multipart/alternative containing mime-encoded
+   * sub-parts for HTML and plaintext. Each subsequent part is the required
+   * image or attachment.
    *
    * @param string $body
    *   The HTML message body.
    * @param string $subject
    *   The message subject.
-   * @param boolean $plain
-   *   (optional) Whether the recipient prefers plaintext-only messages. Defaults to FALSE.
+   * @param bool $plain
+   *   (optional) Whether the recipient prefers plaintext-only messages.
+   *   Defaults to FALSE.
    * @param string $plaintext
    *   (optional) The plaintext message body.
    * @param array $attachments
@@ -83,9 +88,6 @@ class MimeMailFormatHelper {
    *   An associative array containing the following elements:
    *   - body: A string containing the MIME-encoded multipart body of a mail.
    *   - headers: An array that includes some headers for the mail to be sent.
-   *
-   * The first mime part is a multipart/alternative containing mime-encoded sub-parts for
-   * HTML and plaintext. Each subsequent part is the required image or attachment.
    */
   public static function mimeMailHtmlBody($body, $subject, $plain = FALSE, $plaintext = NULL, $attachments = []) {
     if (empty($plaintext)) {
@@ -158,13 +160,15 @@ class MimeMailFormatHelper {
    *   A string containing the HTML source of the message.
    *
    * @return array
-   *   An array containing the document body and the extracted files like the following.
+   *   An array containing the document body and the extracted files,
+   *   structured like the following:
+   *   @code
    *     [
    *       [
    *         'name' => document name
    *         'content' => html text, local image urls replaced by Content-IDs,
    *         'Content-Type' => 'text/html; charset=utf-8',
-           ],
+   *       ],
    *       [
    *         'name' => file name,
    *         'file' => reference to local file,
@@ -172,6 +176,7 @@ class MimeMailFormatHelper {
    *         'Content-Type' => derived using mime_content_type if available, educated guess otherwise,
    *       ],
    *     ]
+   *   @endcode
    */
   public static function mimeMailExtractFiles($html) {
     $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |[\s]src=[\'"]?)([^\'>"]+)([\'"]?)/mis';
@@ -214,8 +219,9 @@ class MimeMailFormatHelper {
    * @param string $disposition
    *   (optional) The content disposition. Defaults to inline.
    *
-   * @return
-   *   The Content-ID and/or an array of the files on success or the URL on failure.
+   * @return mixed
+   *   The Content-ID and/or an array of the files on success or the URL on
+   *   failure.
    */
   public static function mimeMailFile($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'inline') {
     static $files = [];
@@ -224,7 +230,8 @@ class MimeMailFormatHelper {
     if ($url) {
       $image = preg_match('!\.(png|gif|jpg|jpeg)$!i', $url);
       $linkonly = \Drupal::config('mimemail.settings')->get('linkonly');
-      // The file exists on the server as-is. Allows for non-web-accessible files.
+      // The file exists on the server as-is.
+      // Allows for non-web-accessible files.
       if (@is_file($url) && $image && !$linkonly) {
         $file = $url;
       }
@@ -298,8 +305,8 @@ class MimeMailFormatHelper {
    *
    * @param string $url
    *   The file path.
-   * @param boolean $to_embed
-   *   (optional) Wheter the URL is used to embed the file. Defaults to NULL.
+   * @param bool $to_embed
+   *   (optional) Whether the URL is used to embed the file. Defaults to NULL.
    *
    * @return string
    *   A processed URL.
@@ -328,7 +335,8 @@ class MimeMailFormatHelper {
           $url = str_replace(' ', '%20', $url);
         }
         else {
-          // Remove security token from URL, this allows for styled image embedding.
+          // Remove security token from URL, this allows for styled image
+          // embedding.
           // @see https://drupal.org/drupal-7.20-release-notes
           $url = preg_replace('/\\?itok=.*$/', '', $url);
         }
@@ -385,23 +393,29 @@ class MimeMailFormatHelper {
   }
 
   /**
-   * Build a multipart body.
+   * Builds a multipart body.
    *
    * @param array $parts
    *   An associative array containing the parts to be included:
    *   - name: A string containing the name of the attachment.
    *   - content: A string containing textual content.
    *   - file: A string containing file content.
-   *   - Content-Type: A string containing the content type of either file or content. Mandatory
-   *     for content, optional for file. If not present, it will be derived from file the file if
+   *   - Content-Type: A string containing the content type of either file or
+   *     content. Mandatory for content, optional for file. If not present, it
+   *     will be derived from file the file if
    *     mime_content_type is available. If not, application/octet-stream is used.
-   *   - Content-Disposition: (optional) A string containing the disposition. Defaults to inline.
-   *   - Content-Transfer-Encoding: (optional) Base64 is assumed for files, 8bit for other content.
+   *   - Content-Disposition: (optional) A string containing the disposition.
+   *     Defaults to inline.
+   *   - Content-Transfer-Encoding: (optional) Base64 is assumed for files,
+   *     8bit for other content.
    *   - Content-ID: (optional) for in-mail references to attachements.
-   *   Name is mandatory, one of content and file is required, they are mutually exclusive.
+   *   Name is mandatory, one of content and file is required, they are
+   *   mutually exclusive.
    * @param string $content_type
-   *   (optional) A string containing the content-type for the combined message. Defaults to
-   *   multipart/mixed.
+   *   (optional) A string containing the content-type for the combined
+   *   message. Defaults to multipart/mixed.
+   * @param bool $sub_part
+   *   (optional)
    *
    * @return array
    *   An associative array containing the following elements:
@@ -486,7 +500,7 @@ class MimeMailFormatHelper {
   }
 
   /**
-   * Attempts to RFC822-compliant headers for the mail message or its MIME parts.
+   * Makes headers RFC822-compliant for the mail message or its MIME parts.
    *
    * @todo Could use some enhancement and stress testing.
    *
@@ -529,7 +543,7 @@ class MimeMailFormatHelper {
    *   The address of the sender.
    *
    * @return array
-   *   Overwrited headers.
+   *   Overwritten headers.
    */
   public static function mimeMailHeaders($headers, $from = NULL) {
     $default_from = \Drupal::config('system.site')->get('mail');
@@ -565,6 +579,8 @@ class MimeMailFormatHelper {
   }
 
   /**
+   * Callback for preg_replace_callback.
+   *
    * @param $matches
    * @return string
    */
@@ -572,6 +588,12 @@ class MimeMailFormatHelper {
     return $matches[1] . self::mimeMailUrl($matches[2]);
   }
 
+  /**
+   * Callback for preg_replace_callback.
+   *
+   * @param $matches
+   * @return string
+   */
   public static function replaceFiles($matches) {
     return stripslashes($matches[1]) .self::mimeMailFile($matches[2]) . stripslashes($matches[3]);
   }

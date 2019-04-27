@@ -43,7 +43,7 @@ class MimeMail extends PhpMail {
     else {
       $message = mimemail_prepare_message($message);
     }*/
-    // @TODO set mimemail_engine. For the moment let's prepare the message.
+    // @todo Set mimemail_engine. For the moment let's prepare the message.
     $message =  $this->prepareMessage($message);
 
     return $message;

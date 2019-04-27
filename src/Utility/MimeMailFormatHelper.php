@@ -523,7 +523,7 @@ class MimeMailFormatHelper {
       if (mb_strlen($value) > 60) {
         // If there's a semicolon, use that to separate.
         if (count($array = preg_split('/;\s*/', $value)) > 1) {
-          $value = trim(join(";$crlf ", $array));
+          $value = trim(implode(";$crlf ", $array));
         }
         else {
           $value = wordwrap($value, 50, "$crlf ", FALSE);

@@ -131,4 +131,3 @@
 
   * Robert Castelo
     HTML to Text and other functionality
-

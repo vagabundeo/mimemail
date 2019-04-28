@@ -48,9 +48,11 @@ function mimemail_mailengine($op, $message = []) {
         'description' => t('Default mailing engine.'),
       ];
       return $engine;
+
     case 'settings':
       // Not implemented.
       break;
+
     case 'multiple':
     case 'single':
     case 'send':
@@ -117,7 +119,7 @@ function mimemail_mailengine($op, $message = []) {
  * Implements hook_theme().
  */
 function mimemail_theme() {
-  return[
+  return [
     'mimemail_messages' => [
       'variables' => [
         'module' => '',

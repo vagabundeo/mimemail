@@ -53,13 +53,14 @@ class MimeMail extends PhpMail {
    *
    * @param array $message
    *   An array containing the message data. The optional parameters are:
-   *   - plain: Whether to send the message as plaintext only or HTML. If evaluates to TRUE,
-   *     then the message will be sent as plaintext.
+   *   - plain: Whether to send the message as plaintext only or HTML. If
+   *     this evaluates to TRUE the message will be sent as plaintext.
    *   - plaintext: Optional plaintext portion of a multipart email.
    *   - attachments: An array of arrays which describe one or more attachments.
-   *     Existing files can be added by path, dinamically-generated files
-   *     can be added by content. The internal array contains the following elements:
-   *      - filepath: Relative Drupal path to an existing file (filecontent is NULL).
+   *     Existing files can be added by path, dinamically-generated files can be
+   *     added by content. The internal array contains the following elements:
+   *      - filepath: Relative Drupal path to an existing file
+   *        (filecontent is NULL).
    *      - filecontent: The actual content of the file (filepath is NULL).
    *      - filename: The filename of the file.
    *      - filemime: The MIME type of the file.
@@ -139,7 +140,7 @@ class MimeMail extends PhpMail {
 
     $hook = [
       'mimemail_message__' . $key,
-      'mimemail_message__' . $module .'__'. $key,
+      'mimemail_message__' . $module . '__' . $key,
     ];
 
     $body = [

@@ -46,6 +46,7 @@ class MimeMailWebTest extends BrowserTestBase {
   }
 
   /**
+   * Tests that spaces in attachment filenames are properly URL-encoded.
    */
   public function testUrl() {
     $this->drupalPostForm(

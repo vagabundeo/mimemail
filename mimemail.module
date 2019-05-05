@@ -36,7 +36,7 @@ function mimemail_help($route_name, RouteMatchInterface $route_match) {
  * @param array $message
  *   The message to perform the operation on.
  *
- * @return boolean
+ * @return bool
  *   Returns TRUE if the operation was successful or FALSE if it was not.
  */
 function mimemail_mailengine($op, $message = []) {

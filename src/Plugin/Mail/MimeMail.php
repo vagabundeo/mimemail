@@ -43,7 +43,7 @@ class MimeMail extends PhpMail {
       $message = mimemail_prepare_message($message);
     }*/
     // @todo Set mimemail_engine. For the moment let's prepare the message.
-    $message =  $this->prepareMessage($message);
+    $message = $this->prepareMessage($message);
 
     return $message;
   }
@@ -149,7 +149,7 @@ class MimeMail extends PhpMail {
       '#key' => $key,
       '#recipient' => $to,
       '#subject' => $subject,
-      '#body' => $body
+      '#body' => $body,
     ];
 
     $body = \Drupal::service('renderer')->renderRoot($body);

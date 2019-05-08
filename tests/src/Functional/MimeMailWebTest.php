@@ -32,7 +32,7 @@ class MimeMailWebTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create admin user.

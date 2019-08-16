@@ -152,7 +152,7 @@ class MimeMail extends PhpMail {
       '#body' => $body,
     ];
 
-    $body = \Drupal::service('renderer')->renderRoot($body);
+    $body = \Drupal::service('renderer')->renderPlain($body);
 
     /*foreach (module_implements('mail_post_process') as $module) {
       $function = $module . '_mail_post_process';

@@ -4,8 +4,9 @@ namespace Drupal\mimemail\Utility;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\Core\Site\Settings;
 use Drupal\Core\Mail\MailFormatHelper;
+use Drupal\Core\Site\Settings;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Url;
 
 /**
@@ -237,8 +238,17 @@ class MimeMailFormatHelper {
       }
       else {
         $url = static::mimeMailUrl($url, 'TRUE');
-        // The $url is absolute, we're done here.
-        $scheme = file_uri_scheme($url);
+        // @todo In Drupal 8.8.x file_uri_scheme() has been deprecated.
+        // Remove this conditional statement once 8.7.x is unsupported.
+        // @see https://www.drupal.org/project/mimemail/issues/3126782
+        if (version_compare(substr(\Drupal::VERSION, 0, 3), '8.8', '>=')) {
+          // The $url is absolute, we're done here.
+          $scheme = StreamWrapperManager::getScheme($url);
+        }
+        else {
+          // The $url is absolute, we're done here.
+          $scheme = file_uri_scheme($url);
+        }
         if ($scheme == 'http' || $scheme == 'https' || preg_match('!mailto:!', $url)) {
           return $url;
         }

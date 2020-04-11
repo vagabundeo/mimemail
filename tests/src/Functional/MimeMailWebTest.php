@@ -23,6 +23,11 @@ class MimeMailWebTest extends BrowserTestBase {
   ];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * A user with all permissions.
    *
    * @var \Drupal\Core\Session\AccountInterface

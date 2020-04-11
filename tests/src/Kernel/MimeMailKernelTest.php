@@ -41,7 +41,7 @@ class MimeMailKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests helper function for formattting URLs.
+   * Tests helper function for formatting URLs.
    *
    * @covers ::mimeMailUrl
    */

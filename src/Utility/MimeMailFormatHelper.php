@@ -107,13 +107,13 @@ class MimeMailFormatHelper {
           'headers' => ['Content-Type' => 'text/plain; charset=utf-8'],
         ];
       }
-      // Plain mail with attachement.
+      // Plain mail with attachment.
       else {
         $content_type = 'multipart/mixed';
-        $parts = [[
+        $parts[] = [
           'content' => $plaintext,
           'Content-Type' => 'text/plain; charset=utf-8',
-        ]];
+        ];
       }
     }
     else {
@@ -194,11 +194,11 @@ class MimeMailFormatHelper {
       $content = rtrim(chunk_split(base64_encode($content)));
     }
 
-    $document = [[
+    $document[] = [
       'Content-Type' => "text/html; charset=utf-8",
       'Content-Transfer-Encoding' => $encoding,
       'content' => $content,
-    ]];
+    ];
 
     $files = static::mimeMailFile();
 
@@ -408,14 +408,15 @@ class MimeMailFormatHelper {
    *     Defaults to inline.
    *   - Content-Transfer-Encoding: (optional) Base64 is assumed for files,
    *     8bit for other content.
-   *   - Content-ID: (optional) for in-mail references to attachements.
+   *   - Content-ID: (optional) for in-mail references to attachments.
    *   Name is mandatory, one of content and file is required, they are
    *   mutually exclusive.
    * @param string $content_type
    *   (optional) A string containing the content-type for the combined
    *   message. Defaults to multipart/mixed.
    * @param bool $sub_part
-   *   (optional)
+   *   (optional) FALSE to return the entire body, TRUE to return only the
+   *   body sub-part.
    *
    * @return array
    *   An associative array containing the following elements:
@@ -570,7 +571,7 @@ class MimeMailFormatHelper {
     }
 
     // Run all headers through mime_header_encode() to convert non-ascii
-    // characters to an rfc compliant string, similar to drupal_mail().
+    // characters to an RFC compliant string, similar to drupal_mail().
     foreach ($headers as $key => $value) {
       $headers[$key] = Unicode::mimeHeaderEncode($value);
     }

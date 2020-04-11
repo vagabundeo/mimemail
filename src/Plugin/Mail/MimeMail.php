@@ -12,7 +12,7 @@ use Drupal\mimemail\Utility\MimeMailFormatHelper;
  * @Mail(
  *   id = "mime_mail",
  *   label = @Translation("Mime Mail mailer"),
- *   description = @Translation("Sends MIME-encoded emails with embedded images and attachments..")
+ *   description = @Translation("Sends MIME-encoded emails with embedded images and attachments.")
  * )
  */
 class MimeMail extends PhpMail {
@@ -135,7 +135,7 @@ class MimeMail extends PhpMail {
       }
     }
 
-    // Removing newline character introduced by _drupal_wrap_mail_line();
+    // Removing newline character introduced by _drupal_wrap_mail_line().
     $subject = str_replace(["\n"], '', trim(MailFormatHelper::htmlToText($subject)));
 
     $hook = [

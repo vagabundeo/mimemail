@@ -161,8 +161,6 @@ class ExampleForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $values = &$form_state['values'];
-
     if (!$this->emailValidator->isValid($form_state->getValue('to'))) {
       $form_state->setErrorByName('to', $this->t('That e-mail address is not valid.'));
     }
@@ -170,9 +168,7 @@ class ExampleForm extends FormBase {
     $file = file_save_upload('attachment');
     if ($file) {
       $file = file_move($file, 'public://');
-      $values['params']['attachments'][] = [
-        'filepath' => $file->uri,
-      ];
+      $form_state->setValue(['params', 'attachments'], [['filepath' => $file->uri]]);
     }
   }
 
@@ -180,22 +176,20 @@ class ExampleForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state['values'];
-
     $module = 'mimemail_example';
-    $key = $values['key'];
-    $to = $values['to'];
+    $key = $form_state->getValue('key');
+    $to = $form_state->getValue('to');
     $language = $this->languageManager->getDefaultLanguage();
-    $params = $values['params'];
+    $params = $form_state->getValue('params');
 
-    if (!empty($values['from_mail'])) {
+    if (!empty($form_state->getValue('from_mail'))) {
       $from = MimeMailFormatHelper::mimeMailAddress([
-        'name' => $values['from'],
-        'mail' => $values['from_mail'],
+        'name' => $form_state->getValue('from'),
+        'mail' => $form_state->getValue('from_mail'),
       ]);
     }
     else {
-      $from = $values['from'];
+      $from = $form_state->getValue('from');
     }
 
     $send = TRUE;

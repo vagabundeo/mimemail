@@ -6,20 +6,6 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function mimemail_example_menu() {
-  $items['example/mimemail_example'] = array(
-    'title' => 'Mime Mail Example',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('mimemail_example_form'),
-    'access arguments' => array('access content'),
-  );
-
-  return $items;
-}
-
-/**
  * Implements hook_mail().
  */
 function mimemail_example_mail($key, &$message, $params) {

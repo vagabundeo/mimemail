@@ -1,0 +1,7 @@
+mimemail_example.example:
+  path: '/example/mimemail_example'
+  defaults:
+    _form: '\Drupal\mimemail_example\Form\ExampleForm'
+    _title: 'Mime Mail Example'
+  requirements:
+    _permission: 'access content'

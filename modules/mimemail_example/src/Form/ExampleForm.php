@@ -2,18 +2,78 @@
 
 namespace Drupal\mimemail_example\Form;
 
+use Drupal\Component\Utility\EmailValidatorInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\mimemail\Utility\MimeMailFormatHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * The example email contact form.
+ */
 class ExampleForm extends FormBase {
 
+  /**
+   * The email.validator service.
+   *
+   * @var \Drupal\Component\Utility\EmailValidatorInterface
+   */
+  protected $emailValidator;
+
+  /**
+   * The language manager service.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * The mail manager service.
+   *
+   * @var \Drupal\Core\Mail\MailManagerInterface
+   */
+  protected $mailManager;
+
+  /**
+   * Constructs a new ExampleForm.
+   *
+   * @param \Drupal\Component\Utility\EmailValidatorInterface $email_validator
+   *   The email validator service.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager service.
+   * @param \Drupal\Core\Mail\MailManagerInterface $mail_manager
+   *   The mail manager service.
+   */
+  public function __construct(EmailValidatorInterface $email_validator, LanguageManagerInterface $language_manager, MailManagerInterface $mail_manager) {
+    $this->emailValidator = $email_validator;
+    $this->languageManager = $language_manager;
+    $this->mailManager = $mail_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('email.validator'),
+      $container->get('language_manager'),
+      $container->get('plugin.manager.mail')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getFormId() {
     return 'mimemail_example_form';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state, $dir = NULL, $img = NULL) {
-    global $user;
-
     $form['intro'] = [
       '#markup' => $this->t('Use this form to send a HTML message to an e-mail address. No spamming!'),
     ];
@@ -28,7 +88,7 @@ class ExampleForm extends FormBase {
     $form['to'] = [
       '#type' => 'textfield',
       '#title' => $this->t('To'),
-      '#default_value' => $user->mail,
+      '#default_value' => $this->currentUser()->getEmail(),
       '#required' => TRUE,
     ];
 
@@ -103,8 +163,8 @@ class ExampleForm extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $values = &$form_state['values'];
 
-    if (!valid_email_address($values['to'])) {
-      form_set_error('to', $this->t('That e-mail address is not valid.'));
+    if (!$this->emailValidator->isValid($form_state->getValue('to'))) {
+      $form_state->setErrorByName('to', $this->t('That e-mail address is not valid.'));
     }
 
     $file = file_save_upload('attachment');
@@ -125,12 +185,11 @@ class ExampleForm extends FormBase {
     $module = 'mimemail_example';
     $key = $values['key'];
     $to = $values['to'];
-    $language = language_default();
+    $language = $this->languageManager->getDefaultLanguage();
     $params = $values['params'];
 
     if (!empty($values['from_mail'])) {
-      module_load_include('inc', 'mimemail');
-      $from = mimemail_address([
+      $from = MimeMailFormatHelper::mimeMailAddress([
         'name' => $values['from'],
         'mail' => $values['from_mail'],
       ]);
@@ -141,12 +200,12 @@ class ExampleForm extends FormBase {
 
     $send = TRUE;
 
-    $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
+    $result = $this->mailManager->mail($module, $key, $to, $language->getId(), $params, $from, $send);
     if ($result['result'] == TRUE) {
-      \Drupal::messenger()->addMessage($this->t('Your message has been sent.'));
+      $this->messenger()->addMessage($this->t('Your message has been sent.'));
     }
     else {
-      \Drupal::messenger()->addError($this->t('There was a problem sending your message and it was not sent.'));
+      $this->messenger()->addError($this->t('There was a problem sending your message and it was not sent.'));
     }
   }
 

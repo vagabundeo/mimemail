@@ -165,10 +165,9 @@ class ExampleForm extends FormBase {
       $form_state->setErrorByName('to', $this->t('That e-mail address is not valid.'));
     }
 
-    $file = file_save_upload('attachment');
+    $file = file_save_upload('attachment', [], 'public://', 0);
     if ($file) {
-      $file = file_move($file, 'public://');
-      $form_state->setValue(['params', 'attachments'], [['filepath' => $file->uri]]);
+      $form_state->setValue(['params', 'attachments'], [['filepath' => $file->getFileUri()]]);
     }
   }
 
@@ -181,6 +180,9 @@ class ExampleForm extends FormBase {
     $to = $form_state->getValue('to');
     $language = $this->languageManager->getDefaultLanguage();
     $params = $form_state->getValue('params');
+    if (empty($params['attachments'])) {
+      $params['attachments'] = [];
+    }
 
     if (!empty($form_state->getValue('from_mail'))) {
       $from = MimeMailFormatHelper::mimeMailAddress([

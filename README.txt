@@ -3,7 +3,7 @@
 
   This is a Mime Mail component module (for use by other modules).
     * It permits users to receive HTML email and can be used by other modules. The mail
-      functionality accepts an HTML message body, mime-endcodes it and sends it.
+      functionality accepts an HTML message body, mime-encodes it and sends it.
     * If the HTML has embedded graphics, these graphics are MIME-encoded and included
       as a message attachment.
     * Adopts your site's style by automatically including your theme's stylesheet files in a

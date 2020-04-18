@@ -4,4 +4,4 @@ mimemail_example.example:
     _form: '\Drupal\mimemail_example\Form\ExampleForm'
     _title: 'Mime Mail Example'
   requirements:
-    _permission: 'access content'
+    _permission: 'send example email'

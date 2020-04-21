@@ -75,7 +75,7 @@ class ExampleForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $dir = NULL, $img = NULL) {
     $form['intro'] = [
-      '#markup' => $this->t('Use this form to send a HTML message to an e-mail address. No spamming!'),
+      '#markup' => $this->t('Use this form to send a HTML message to an email address. No spamming!'),
     ];
 
     $form['key'] = [

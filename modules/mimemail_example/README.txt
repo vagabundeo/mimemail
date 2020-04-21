@@ -11,7 +11,7 @@
 
   To use, install the module then visit:
 
-     /example/mimemail_example
+     /admin/config/system/mimemail/mimemail_example
 
   On this page you can enter information and attach a file, then press a button
   to send email using Mime Mail.

@@ -12,7 +12,7 @@ use Drupal\Core\Mail\MailManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Mail System settings form.
+ * Mime Mail settings form.
  */
 class AdminForm extends ConfigFormBase {
 

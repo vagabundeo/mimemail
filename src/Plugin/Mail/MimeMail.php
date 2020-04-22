@@ -57,7 +57,7 @@ class MimeMail extends PhpMail {
    *     this evaluates to TRUE the message will be sent as plaintext.
    *   - plaintext: Optional plaintext portion of a multipart email.
    *   - attachments: An array of arrays which describe one or more attachments.
-   *     Existing files can be added by path, dinamically-generated files can be
+   *     Existing files can be added by path, dynamically-generated files can be
    *     added by content. The internal array contains the following elements:
    *      - filepath: Relative Drupal path to an existing file
    *        (filecontent is NULL).

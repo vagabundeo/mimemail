@@ -165,7 +165,7 @@ class ExampleForm extends FormBase {
       $form_state->setErrorByName('to', $this->t('That email address is not valid.'));
     }
 
-    $file = file_save_upload('attachment', [], 'public://', 0);
+    $file = file_save_upload('attachment', [], 'temporary://', 0);
     if ($file) {
       $form_state->setValue(['params', 'attachments'], [['filepath' => $file->getFileUri()]]);
     }

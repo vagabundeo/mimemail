@@ -13,11 +13,9 @@ use Drupal\mimemail\Utility\MimeMailFormatHelper;
 class MimeMailWebTest extends BrowserTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var string[]
+   * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'mailsystem',
     'mimemail',
   ];

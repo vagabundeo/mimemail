@@ -81,6 +81,7 @@ class ExampleForm extends FormBase {
     $form['key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Key'),
+      '#description' => $this->t('A key to identify the email sent.'),
       '#default_value' => 'test',
       '#required' => TRUE,
     ];
@@ -88,6 +89,7 @@ class ExampleForm extends FormBase {
     $form['to'] = [
       '#type' => 'textfield',
       '#title' => $this->t('To'),
+      '#description' => $this->t('The email address of the recipient. The formatting of this string must comply with RFC 2822.'),
       '#default_value' => $this->currentUser()->getEmail(),
       '#required' => TRUE,
     ];
@@ -95,11 +97,13 @@ class ExampleForm extends FormBase {
     $form['from'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Sender name'),
+      '#description' => $this->t("The sender's name. Leave empty to use the site-wide configured name."),
     ];
 
     $form['from_mail'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Sender email address'),
+      '#description' => $this->t("The sender's email address. Leave empty to use the site-wide configured address."),
     ];
 
     $form['params'] = [
@@ -108,27 +112,33 @@ class ExampleForm extends FormBase {
         'Cc' => [
           '#type' => 'textfield',
           '#title' => $this->t('Cc'),
+          '#description' => $this->t("The mail's carbon copy address. You may separate multiple addresses with comma."),
         ],
         'Bcc' => [
           '#type' => 'textfield',
           '#title' => $this->t('Bcc'),
+          '#description' => $this->t("The mail's blind carbon copy address. You may separate multiple addresses with comma."),
         ],
         'Reply-to' => [
           '#type' => 'textfield',
           '#title' => $this->t('Reply to'),
+          '#description' => $this->t("The address to reply to. Leave empty to use the sender's address."),
         ],
         'List-unsubscribe' => [
           '#type' => 'textfield',
           '#title' => $this->t('List-unsubscribe'),
+          '#description' => $this->t('An email address and/or a URL which can be used for unsubscription. Values must be enclosed by angle brackets and separated by a comma.'),
         ],
       ],
       'subject' => [
         '#type' => 'textfield',
         '#title' => $this->t('Subject'),
+        '#description' => $this->t("The email's subject."),
       ],
       'body' => [
         '#type' => 'textarea',
         '#title' => $this->t('HTML message'),
+        '#description' => $this->t("HTML version of the email body. This will be formatted using the text format selected at 'admin/config/system/mimemail'"),
       ],
       'plain' => [
         '#type' => 'hidden',
@@ -141,11 +151,12 @@ class ExampleForm extends FormBase {
       'plaintext' => [
         '#type' => 'textarea',
         '#title' => $this->t('Plain text message'),
+        '#description' => $this->t('Plain text version of the email body. HTML not allowed.'),
       ],
       'attachments' => [
         '#name' => 'files[attachment]',
         '#type' => 'file',
-        '#title' => $this->t('Choose a file to send as attachment'),
+        '#title' => $this->t('Choose a file to send as an email attachment'),
       ],
     ];
 

@@ -3,13 +3,13 @@ mimemail.settings:
   mapping:
     format:
       type: string
-      label: 'E-mail format'
+      label: 'Email format'
     name:
       type: string
       label: 'Sender name'
     mail:
       type: email
-      label: 'Sender e-mail address'
+      label: 'Sender email address'
     linkonly:
       type: boolean
       label: 'Disables the embedding of images, all images will be links to external content'

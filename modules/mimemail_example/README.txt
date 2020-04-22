@@ -7,7 +7,7 @@
   This module can be used to test a site to verify that mail is set up properly,
   or it can be used during the development of Mime Mail to test operation of
   the module and/or try out bug fixes/new features. It also serves as an example
-  of how to programmatically send e-mail with Mime Mail.
+  of how to programmatically send email with Mime Mail.
 
   To use, install the module then visit:
 

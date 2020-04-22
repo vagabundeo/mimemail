@@ -99,7 +99,7 @@ class ExampleForm extends FormBase {
 
     $form['from_mail'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Sender e-mail address'),
+      '#title' => $this->t('Sender email address'),
     ];
 
     $form['params'] = [
@@ -162,7 +162,7 @@ class ExampleForm extends FormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     if (!$this->emailValidator->isValid($form_state->getValue('to'))) {
-      $form_state->setErrorByName('to', $this->t('That e-mail address is not valid.'));
+      $form_state->setErrorByName('to', $this->t('That email address is not valid.'));
     }
 
     $file = file_save_upload('attachment', [], 'public://', 0);

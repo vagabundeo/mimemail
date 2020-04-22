@@ -55,11 +55,11 @@
     '{$module}' => 'MimeMailSystem', // All messages sent by $module.
   ]);
 
-  You can use the following optional parameters to build the e-mail:
+  You can use the following optional parameters to build the email:
     'plain':
       Boolean, whether to send messages in plaintext-only (optional, default is FALSE).
     'plaintext':
-      Plaintext portion of a multipart e-mail (optional).
+      Plaintext portion of a multipart email (optional).
     'attachments':
       Array of arrays with the path or content, name and MIME type of the file (optional).
     'headers':
@@ -97,7 +97,7 @@
     mimemail-messages.html.twig (for all messages)
 
   Messages can be rendered using different themes. You can choose the following
-  settings to render the e-mail:
+  settings to render the email:
     'current': Theme currently used by the user who runs drupal_mail().
     'default': Default theme, obtained via variable theme_default.
     'domain': Theme obtained via Domain Theme module.

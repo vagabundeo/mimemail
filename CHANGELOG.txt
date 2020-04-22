@@ -135,7 +135,7 @@ Mime Mail 6.x-1.0, 2011-11-19
 - #1203234 by sgabe | Offlein: Store input format setting for Rules and actions.
 - #1227242 by sgabe: Remove unnecessary reference signs.
 - #1076520 by joelstein: Absolute site stylesheets not included.
-- #1258062 by oadaeh: Don't allow an empty e-mail address with the default engine.
+- #1258062 by oadaeh: Don't allow an empty email address with the default engine.
 - #1270686 by gmania: Don't add Content-Disposition to multipart/alternative parts.
 - #1260302 by sgabe | prokop1000: Replace encoding detection with UTF-8.
 - #1270656 by sgabe: From header can be an array which causes errors.
@@ -194,7 +194,7 @@ Mime Mail 6.x-1.0-alpha7, 2011-01-31
 - #961536 by clydefrog: Check if sender is empty, not just null
 - #852698 by sgabe | interestingaftermath: Specify sender's name
 - #685574 by sgabe, Wim Leers | Michelle: Optional site's css embedding
-- #758754 by sgabe | mennonot: Add 'Send HTML e-mail' action
+- #758754 by sgabe | mennonot: Add 'Send HTML email' action
 - #501722 by jpetso, fago, criz, sgabe, aantonop: HTML mail actions for Rules
 - #729658 by sgabe, Agileware: Allow better integration with Domain Access module
 - #960726 by sgabe, clydefrog: Send plaintext message if the HTML body is empty

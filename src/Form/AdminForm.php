@@ -99,11 +99,11 @@ class AdminForm extends ConfigFormBase {
     ];
     $form['mimemail']['mail'] = [
       '#type'          => 'email',
-      '#title'         => $this->t('Sender e-mail address'),
+      '#title'         => $this->t('Sender email address'),
       '#default_value' => $config->get('mail') ? $config->get('mail') : $this->config('system.site')->get('mail'),
       '#size'          => 60,
       '#maxlength'     => 128,
-      '#description'   => $this->t('The email address that all site e-mails will be from when using default engine.'),
+      '#description'   => $this->t('The email address that all site emails will be from when using default engine.'),
     ];
 
     // Check for the existence of a mail.css file in the default theme folder.
@@ -162,7 +162,7 @@ class AdminForm extends ConfigFormBase {
     }
     $form['mimemail']['format'] = [
       '#type' => 'select',
-      '#title' => $this->t('E-mail format'),
+      '#title' => $this->t('Email format'),
       '#default_value' => $config->get('format') ? $config->get('format') : filter_fallback_format(),
       '#options' => $format_options,
       '#access' => count($formats) > 1,
@@ -215,7 +215,7 @@ class AdminForm extends ConfigFormBase {
     else {
       $form['mimemail']['engine'] = [
         '#type' => 'select',
-        '#title' => $this->t('E-mail engine'),
+        '#title' => $this->t('Email engine'),
         '#default_value' => $config->get('engine'),
         '#options' => $engine_options,
         '#description' => $this->t('Choose an engine for sending mails from your site.'),

@@ -2,15 +2,15 @@
 -- SUMMARY --
 
   This is a Mime Mail component module (for use by other modules).
-    * It permits users to receive HTML email and can be used by other modules. The mail
-      functionality accepts an HTML message body, mime-encodes it and sends it.
-    * If the HTML has embedded graphics, these graphics are MIME-encoded and included
-      as a message attachment.
-    * Adopts your site's style by automatically including your theme's stylesheet files in a
-      themeable HTML message format
-   *  If the recipient's preference is available and they prefer plaintext, the HTML will be
-      converted to plain text and sent as-is. Otherwise, the email will be sent in themeable
-      HTML with a plaintext alternative.
+  * It permits users to receive HTML email and can be used by other modules. The
+    mail functionality accepts an HTML message body, mime-encodes it and sends it.
+  * If the HTML has embedded graphics, these graphics are MIME-encoded and
+    included as a message attachment.
+  * Adopts your site's style by automatically including your theme's stylesheet
+    files in a themeable HTML message format.
+  * If the recipient's preference is available and they prefer plaintext, the HTML
+    will be converted to plain text and sent as-is. Otherwise, the email will be
+    sent in themeable HTML with a plaintext alternative.
 
   For a full description of the module, visit the project page:
     http://drupal.org/project/mimemail
@@ -106,8 +106,8 @@
 
   Images with absolute URL will be available as remote content. To embed images
   into emails you have to use a relative URL or an internal path. Due to security
-  concerns, only files residing in the public file system (e.g sites/default/files)
-  can be used by default.
+  concerns, only files residing in the public file system
+  (e.g sites/default/files) can be used by default.
 
   For example:
     instead of http://www.mysite.com/sites/default/files/mypicture.jpg
@@ -115,9 +115,10 @@
     or /sites/default/files/mypicture.jpg
     or public://mypicture.jpg
 
-  The 'send arbitrary files' permission allows you to attach or embed files located
-  outside Drupal's public files directory. Note that this has security implications:
-  arbitrary means even your settings.php! Give to trusted roles only!
+  The 'send arbitrary files' permission allows you to attach or embed files
+  located outside Drupal's public files directory. Note that this has security
+  implications: arbitrary includes even your settings.php! Give to trusted roles
+  only!
 
 
 -- CREDITS --

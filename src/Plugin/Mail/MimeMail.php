@@ -79,7 +79,7 @@ class MimeMail extends PhpMail {
    * @return array
    *   All details of the message.
    */
-  public function prepareMessage(array $message) {
+  protected function prepareMessage(array $message) {
     $module = $message['module'];
     $key = $message['key'];
     $to = $message['to'];

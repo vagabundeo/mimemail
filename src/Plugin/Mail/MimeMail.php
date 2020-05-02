@@ -138,13 +138,8 @@ class MimeMail extends PhpMail {
     // Removing newline character introduced by _drupal_wrap_mail_line().
     $subject = str_replace(["\n"], '', trim(MailFormatHelper::htmlToText($subject)));
 
-    $hook = [
-      'mimemail_message__' . $key,
-      'mimemail_message__' . $module . '__' . $key,
-    ];
-
     $body = [
-      '#theme' => 'mimemail_messages',
+      '#theme' => 'mimemail_message',
       '#module' => $module,
       '#key' => $key,
       '#recipient' => $to,

@@ -65,8 +65,8 @@
     'headers':
       A keyed array with headers (optional).
 
-  You can set these in $params either before calling drupal_mail() or in hook_mail()
-  and of course hook_mail_alter().
+  You can set these in $params either before MailManager::mail() or in hook_mail()
+  or of course in hook_mail_alter().
 
   Normally, Mime Mail uses email addresses in the form of "name" <address@host.com>,
   but PHP running on Windows servers requires extra SMTP handling to use this format.
@@ -78,7 +78,7 @@
   This preference will be honored by all messages if the format is not explicitly set
   and the user has access to edit this preference (allowed by default).
 
-  Email messages are formatted using the mimemail-message.tpl.php template.
+  Email messages are formatted using the mimemail-message.html.twig template.
   This includes a CSS style sheet and uses an HTML version of the text.
   The included CSS is either:
     the mail.css file found anywhere in your theme folder or
@@ -90,11 +90,12 @@
   CSS definitions into tags within the HTML based on the CSS selectors. To use the
   Compressor, just enable it.
 
-  To create a custom mail template copy the mimemail-message.tpl.php file from
-  the mimemail/theme directory into your default theme's folder. Both general and
-  by-mailkey theming can be performed:
-    mimemail-messages--[key].html.twig (for messages with a specific key)
-    mimemail-messages.html.twig (for all messages)
+  To create a custom mail template copy the mimemail-message.html.twig file from
+  the mimemail/templates directory into your default theme's folder. Both general
+  and by-mailkey theming can be performed:
+    mimemail-message--[module]--[key].html.twig (for messages with a specific module and key)
+    mimemail-message--[module].html.twig (for messages with a specific module)
+    mimemail-message.html.twig (for all messages)
 
   Messages can be rendered using different themes. You can choose the following
   settings to render the email:

@@ -2,6 +2,7 @@
 
 namespace Drupal\mimemail\Utility;
 
+use Drupal\Component\Utility\Mail;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Mail\MailFormatHelper;
@@ -31,13 +32,10 @@ class MimeMailFormatHelper {
     if (is_array($address)) {
       // It's an array containing 'mail' and/or 'name'.
       if (isset($address['mail'])) {
-        $output = '';
         if (empty($address['name']) || $simplify) {
           return $address['mail'];
         }
-        else {
-          return '"' . addslashes(Unicode::mimeHeaderEncode($address['name'])) . '" <' . $address['mail'] . '>';
-        }
+        return Mail::formatDisplayName($address['name']) . ' <' . $address['mail'] . '>';
       }
       // It's an array of address items.
       $addresses = [];
@@ -52,9 +50,7 @@ class MimeMailFormatHelper {
       if (empty($address->name) || $simplify) {
         return $address->mail;
       }
-      else {
-        return '"' . addslashes(Unicode::mimeHeaderEncode($address->name)) . '" <' . $address->mail . '>';
-      }
+      return Mail::formatDisplayName($address->name) . ' <' . $address->mail . '>';
     }
 
     // It's formatted or unformatted string.
@@ -519,7 +515,7 @@ class MimeMailFormatHelper {
   }
 
   /**
-   * Makes headers RFC822-compliant for the mail message or its MIME parts.
+   * Makes headers RFC2822-compliant for the mail message or its MIME parts.
    *
    * @todo Could use some enhancement and stress testing.
    *

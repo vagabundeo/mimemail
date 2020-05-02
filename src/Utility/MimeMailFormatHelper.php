@@ -108,15 +108,17 @@ class MimeMailFormatHelper {
       else {
         $content_type = 'multipart/mixed';
         $parts[] = [
-          'content' => $plaintext,
           'Content-Type' => 'text/plain; charset=utf-8',
+          'content' => $plaintext,
         ];
       }
     }
     else {
       $content_type = 'multipart/mixed';
-
-      $plaintext_part = ['Content-Type' => 'text/plain; charset=utf-8', 'content' => $plaintext];
+      $plaintext_part = [
+        'Content-Type' => 'text/plain; charset=utf-8',
+        'content' => $plaintext,
+      ];
 
       // Expand all local links.
       $pattern = '/(<a[^>]+href=")([^"]*)/mi';
@@ -126,12 +128,18 @@ class MimeMailFormatHelper {
 
       $content = [$plaintext_part, array_shift($mime_parts)];
       $content = static::mimeMailMultipartBody($content, 'multipart/alternative', TRUE);
-      $parts = [['Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']]];
+      $parts[] = [
+        'Content-Type' => $content['headers']['Content-Type'],
+        'content' => $content['body'],
+      ];
 
       if ($mime_parts) {
         $parts = array_merge($parts, $mime_parts);
         $content = static::mimeMailMultipartBody($parts, 'multipart/related; type="multipart/alternative"', TRUE);
-        $parts = [['Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']]];
+        $parts[] = [
+          'Content-Type' => $content['headers']['Content-Type'],
+          'content' => $content['body'],
+        ];
       }
     }
 
@@ -160,19 +168,19 @@ class MimeMailFormatHelper {
    *   An array containing the document body and the extracted files,
    *   structured like the following:
    *   @code
+   *   [
    *     [
-   *       [
-   *         'name' => document name
-   *         'content' => html text, local image urls replaced by Content-IDs,
-   *         'Content-Type' => 'text/html; charset=utf-8',
-   *       ],
-   *       [
-   *         'name' => file name,
-   *         'file' => reference to local file,
-   *         'Content-ID' => generated Content-ID,
-   *         'Content-Type' => derived using mime_content_type if available, educated guess otherwise,
-   *       ],
-   *     ]
+   *       'name' => document name,
+   *       'content' => html text, local image urls replaced by Content-IDs,
+   *       'Content-Type' => 'text/html; charset=utf-8',
+   *     ],
+   *     [
+   *       'name' => file name,
+   *       'file' => reference to local file,
+   *       'Content-ID' => generated Content-ID,
+   *       'Content-Type' => derived using mime_content_type if available, educated guess otherwise,
+   *     ],
+   *   ]
    *   @endcode
    */
   public static function mimeMailExtractFiles($html) {

@@ -95,7 +95,7 @@ class AdminForm extends ConfigFormBase {
       '#default_value' => $config->get('name') ? $config->get('name') : $this->config('system.site')->get('name'),
       '#size'          => 60,
       '#maxlength'     => 128,
-      '#description'   => $this->t('The name that all site emails will be from when using default engine.'),
+      '#description'   => $this->t('The name that all site emails will be from when using Mime Mail.'),
     ];
     $form['mimemail']['mail'] = [
       '#type'          => 'email',
@@ -103,7 +103,7 @@ class AdminForm extends ConfigFormBase {
       '#default_value' => $config->get('mail') ? $config->get('mail') : $this->config('system.site')->get('mail'),
       '#size'          => 60,
       '#maxlength'     => 128,
-      '#description'   => $this->t('The email address that all site emails will be from when using default engine.'),
+      '#description'   => $this->t('The email address that all site emails will be from when using Mime Mail.'),
     ];
 
     // Check for the existence of a mail.css file in the default theme folder.
@@ -189,59 +189,6 @@ class AdminForm extends ConfigFormBase {
       '#description' => $this->t('This string will be used to validate incoming messages. It can be anything, but must be used on both sides of the transfer.'),
     ];
 
-    // Get the available mail engines.
-    // @todo Hard-code the 'mimemail' engine until mimemail_get_engines() has
-    // been ported to D8. The structure of the $engines array is defined in
-    // mimemail_get_engines().
-    $engines['mimemail'] = [
-      'name' => $this->t('Mime Mail'),
-      'description' => $this->t('Default mailing engine.'),
-    ];
-    // @todo Port the mimemail_get_engines() function to D8.
-    /* $engines = mimemail_get_engines(); */
-    foreach ($engines as $module => $engine) {
-      $engine_options[$module] = $engine['name'] . ': ' . $engine['description'];
-    }
-
-    // Hide the settings if only 1 engine is available.
-    if (count($engines) == 1) {
-      reset($engines);
-      $config->set('engine', key($engines));
-      $form['mimemail']['engine'] = [
-        '#type' => 'hidden',
-        '#value' => $config->get('engine'),
-      ];
-    }
-    else {
-      $form['mimemail']['engine'] = [
-        '#type' => 'select',
-        '#title' => $this->t('Email engine'),
-        '#default_value' => $config->get('engine'),
-        '#options' => $engine_options,
-        '#description' => $this->t('Choose an engine for sending mails from your site.'),
-      ];
-    }
-
-    // @todo This block is wrong for both D7 and D8 - 'engine' won't have the
-    // value selected above unless we use Ajax here. If we don't use Ajax and
-    // there is more than 1 engine available, then we're operating on the value
-    // that 'engine' had at page load instead of the one selected above.
-    if ($config->get('engine')) {
-      $settings = $this->moduleHandler->invoke($config->get('engine'), 'mailengine', ['settings']);
-      if ($settings) {
-        $form['mimemail']['engine_settings'] = [
-          '#type' => 'fieldset',
-          '#title' => $this->t('Engine specific settings'),
-        ];
-        foreach ($settings as $name => $value) {
-          $form['mimemail']['engine_settings'][$name] = $value;
-        }
-      }
-    }
-    else {
-      $this->messenger()->addError($this->t('Please choose a mail engine.'));
-    }
-
     return parent::buildForm($form, $form_state);
   }
 
@@ -258,7 +205,6 @@ class AdminForm extends ConfigFormBase {
       ->set('textonly', $form_state->getValue('textonly'))
       ->set('sitestyle', $form_state->getValue('sitestyle'))
       ->set('simple_address', $form_state->getValue('simple_address'))
-      ->set('engine', $form_state->getValue('engine'))
       ->set('advanced.incoming', $form_state->getValue('incoming'))
       ->set('advanced.key', $form_state->getValue('key'));
     if ($form_state->hasValue('preserve_class')) {

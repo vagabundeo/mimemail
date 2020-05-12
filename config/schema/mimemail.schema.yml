@@ -22,9 +22,6 @@ mimemail.settings:
     simple_address:
       type: boolean
       label: 'Use simple format for all recipient email addresses'
-    engine:
-      type: string
-      label: 'The engine for sending mails'
     preserve_class:
       type: boolean
       label: 'Whether to preserve CSS class attributes when inlining CSS using mimemail_compress'

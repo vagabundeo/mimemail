@@ -32,17 +32,6 @@ class MimeMail extends PhpMail {
       $message['body'] = check_markup($message['body'], $format);
     }
 
-    /*$engine = variable_get('mimemail_engine', 'mimemail');
-    //$mailengine = $engine . '_mailengine';
-    $engine_prepare_message = $engine . '_prepare_message';
-
-    if (function_exists($engine_prepare_message)) {
-      $message = $engine_prepare_message($message);
-    }
-    else {
-      $message = mimemail_prepare_message($message);
-    }*/
-    // @todo Set mimemail_engine. For the moment let's prepare the message.
     $message = $this->prepareMessage($message);
 
     return $message;
@@ -97,17 +86,7 @@ class MimeMail extends PhpMail {
     $site_mail = \Drupal::config('system.site')->get('mail');
     /*$simple_address = variable_get('mimemail_simple_address', 0);*/
 
-    // Override site mails default sender when using default engine.
-    /*if ((empty($from) || $from == $site_mail)
-      && variable_get('mimemail_engine', 'mimemail') == 'mimemail') {
-      $mimemail_name = variable_get('mimemail_name', $site_name);
-      $mimemail_mail = variable_get('mimemail_mail', $site_mail);
-      $from = [
-        'name' => !empty($mimemail_name) ? $mimemail_name : $site_name,
-        'mail' => !empty($mimemail_mail) ? $mimemail_mail : $site_mail,
-      ];
-    }*/
-    // Override site mails default sender when using default engine.
+    // Override site mails default sender.
     if ((empty($from) || $from == $site_mail)) {
       $mimemail_name = \Drupal::config('mimemail.settings')->get('name');
       $mimemail_mail = \Drupal::config('mimemail.settings')->get('mail');

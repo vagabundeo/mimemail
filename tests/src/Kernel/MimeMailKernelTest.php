@@ -23,6 +23,57 @@ class MimeMailKernelTest extends KernelTestBase {
   ];
 
   /**
+   * Tests helper function for formatting URLs.
+   *
+   * @param string $url
+   *   URL to test.
+   * @param bool $absolute
+   *   Whether the URL is absolute.
+   * @param string $expected
+   *   URL after formatting.
+   * @param string $message
+   *   Description of the result we are expecting.
+   *
+   * @dataProvider providerTestUrl
+   * @covers ::mimeMailUrl
+   */
+  public function testUrl($url, $absolute, $expected, $message) {
+    $result = MimeMailFormatHelper::mimeMailUrl($url, $absolute);
+    $this->assertSame($result, $expected, $message);
+  }
+
+  /**
+   * Provides test data for testUrl().
+   */
+  public function providerTestUrl() {
+    // Format of each element is:
+    // - url: URL to test.
+    // - absolute: Whether the URL is absolute.
+    // - expected: URL after formatting.
+    // - message: Description of the result we are expecting.
+    return [
+      [
+        '#',
+        FALSE,
+        '#',
+        'Hash mark URL without fragment left intact.',
+      ],
+      [
+        '/sites/default/files/styles/thumbnail/public/image.jpg?itok=Wrl6Qi9U',
+        TRUE,
+        '/sites/default/files/styles/thumbnail/public/image.jpg',
+        'Security token removed from styled image URL.',
+      ],
+      [
+        $expected = 'public://' . $this->randomMachineName() . ' ' . $this->randomMachineName() . '.' . $this->randomMachineName(3),
+        TRUE,
+        $expected,
+        'Space in the filename of the attachment left intact.',
+      ],
+    ];
+  }
+
+  /**
    * Tests the regular expression for extracting the mail address.
    *
    * @covers ::mimeMailHeaders
@@ -36,25 +87,6 @@ class MimeMailKernelTest extends KernelTestBase {
     $result = $headers['Return-Path'];
     $expected = "<$local@$domain>";
     $this->assertSame($result, $expected, 'Return-Path header field correctly set.');
-  }
-
-  /**
-   * Tests helper function for formatting URLs.
-   *
-   * @covers ::mimeMailUrl
-   */
-  public function testUrl() {
-    $result = MimeMailFormatHelper::mimeMailUrl('#');
-    $this->assertSame($result, '#', 'Hash mark URL without fragment left intact.');
-
-    $url = '/sites/default/files/styles/thumbnail/public/image.jpg?itok=Wrl6Qi9U';
-    $result = MimeMailFormatHelper::mimeMailUrl($url, TRUE);
-    $expected = '/sites/default/files/styles/thumbnail/public/image.jpg';
-    $this->assertSame($result, $expected, 'Security token removed from styled image URL.');
-
-    $expected = $url = 'public://' . $this->randomMachineName() . ' ' . $this->randomMachineName() . '.' . $this->randomMachineName(3);
-    $result = MimeMailFormatHelper::mimeMailUrl($url, TRUE);
-    $this->assertSame($result, $expected, 'Space in the filename of the attachment left intact.');
   }
 
 }

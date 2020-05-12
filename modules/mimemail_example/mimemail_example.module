@@ -2,13 +2,19 @@
 
 /**
  * @file
- * Core and contrib hook implementations for Mime Mail Example module.
+ * Hook implementations for the Mime Mail Example module.
  */
 
 /**
  * Implements hook_mail().
  */
 function mimemail_example_mail($key, &$message, $params) {
-  $message['subject'] = $params['subject'];
+  // The $params array holds the values entered on the ExampleForm, stored
+  // with the same structure as the $form array. We need to copy these values
+  // to the appropriate place in the $message so that they get used when
+  // sending the email.
+  $message['from'] = isset($params['headers']['From']) ? $params['headers']['From'] : NULL;
+  // Strip newline characters from e-mail subjects.
+  $message['subject'] = isset($params['subject']) ? str_replace(["\r\n", "\r", "\n"], ' ', $params['subject']) : NULL;
   $message['body'][] = $params['body'];
 }

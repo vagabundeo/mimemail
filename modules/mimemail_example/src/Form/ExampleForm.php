@@ -186,32 +186,52 @@ class ExampleForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Assemble arguments for MailManager::mail().
     $module = 'mimemail_example';
     $key = $form_state->getValue('key');
     $to = $form_state->getValue('to');
-    $language = $this->languageManager->getDefaultLanguage();
+    $langcode = $this->languageManager->getDefaultLanguage()->getId();
     $params = $form_state->getValue('params');
-    if (empty($params['attachments'])) {
-      $params['attachments'] = [];
-    }
+    $reply = $params['headers']['Reply-to'];
+    $send = TRUE;
 
+    // Now add values to $params and/or modify submitted values.
+    // Set From header.
     if (!empty($form_state->getValue('from_mail'))) {
-      $from = MimeMailFormatHelper::mimeMailAddress([
+      $params['headers']['From'] = MimeMailFormatHelper::mimeMailAddress([
         'name' => $form_state->getValue('from'),
         'mail' => $form_state->getValue('from_mail'),
       ]);
     }
+    elseif (!empty($form_state->getValue('from'))) {
+      $params['headers']['From'] = $from = $form_state->getValue('from');
+    }
     else {
-      $from = $form_state->getValue('from');
+      // Empty 'from' will result in the default site email being used.
     }
 
-    $send = TRUE;
+    // Handle empty attachments - we require this to be an array.
+    if (empty($params['attachments'])) {
+      $params['attachments'] = [];
+    }
 
-    $result = $this->mailManager->mail($module, $key, $to, $language->getId(), $params, $from, $send);
+    // Remove empty values from $param['headers'] - this will force the
+    // the formatting mailsystem and the sending mailsystem to use the
+    // default values for these elements.
+    foreach ($params['headers'] as $header => $value) {
+      if (empty($value)) {
+        unset($params['headers'][$header]);
+      }
+    }
+
+    // Finally, call MailManager::mail() to send the mail.
+    $result = $this->mailManager->mail($module, $key, $to, $langcode, $params, $reply, $send);
     if ($result['result'] == TRUE) {
       $this->messenger()->addMessage($this->t('Your message has been sent.'));
     }
     else {
+      // This condition is also logged to the 'mail' logger channel by the
+      // default PhpMail mailsystem.
       $this->messenger()->addError($this->t('There was a problem sending your message and it was not sent.'));
     }
   }

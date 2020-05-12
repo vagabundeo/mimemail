@@ -15,7 +15,6 @@ function mimemail_example_theme() {
     // by providing a new theme hook used when sending mail from this module.
     // The template use for this email is found in
     // templates/mimemail-message--mimemail-example.html.twig.
-    //'mimemail_message__mimemail_example__test' => [
     'mimemail_message__mimemail_example' => [
       'render element' => 'elements',
       'base hook' => 'mimemail_message',

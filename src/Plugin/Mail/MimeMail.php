@@ -96,8 +96,8 @@ class MimeMail extends PhpMail {
       ];
     }
 
-    // Body is empty, this is a plaintext message.
     if (empty($body)) {
+      // Body is empty, this is a plaintext message.
       $plain = TRUE;
     }
     // Try to determine recipient's text mail preference.

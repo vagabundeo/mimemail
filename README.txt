@@ -5,7 +5,7 @@
   * It permits users to receive HTML email and can be used by other modules. The
     mail functionality accepts an HTML message body, mime-encodes it and sends it.
   * If the HTML has embedded graphics, these graphics are MIME-encoded and
-    included as a message attachment.
+    included as message attachments.
   * Adopts your site's style by automatically including your theme's stylesheet
     files in a themeable HTML message format.
   * If the recipient's preference is available and they prefer plaintext, the HTML

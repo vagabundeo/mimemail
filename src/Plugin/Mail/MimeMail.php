@@ -2,9 +2,15 @@
 
 namespace Drupal\mimemail\Plugin\Mail;
 
+use Drupal\Component\Utility\EmailValidatorInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Mail\Plugin\Mail\PhpMail;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\mimemail\Utility\MimeMailFormatHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines the default Drupal mail backend, using PHP's native mail() function.
@@ -15,7 +21,75 @@ use Drupal\mimemail\Utility\MimeMailFormatHelper;
  *   description = @Translation("Sends MIME-encoded emails with embedded images and attachments.")
  * )
  */
-class MimeMail extends PhpMail {
+class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
+
+  /**
+   * The configuration factory service.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * The email.validator service.
+   *
+   * @var \Drupal\Component\Utility\EmailValidatorInterface
+   */
+  protected $emailValidator;
+
+  /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * MimeMail plugin constructor.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin ID for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory service.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler service.
+   * @param \Drupal\Component\Utility\EmailValidatorInterface $email_validator
+   *   The email validator service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, EmailValidatorInterface $email_validator, RendererInterface $renderer) {
+    $this->configFactory = $config_factory;
+    $this->moduleHandler = $module_handler;
+    $this->emailValidator = $email_validator;
+    $this->renderer = $renderer;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('config.factory'),
+      $container->get('module_handler'),
+      $container->get('email.validator'),
+      $container->get('renderer')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -26,7 +100,7 @@ class MimeMail extends PhpMail {
     }
 
     if (preg_match('/plain/', $message['headers']['Content-Type'])) {
-      if (!$format = \Drupal::config('mimemail.settings')->get('format')) {
+      if (!$format = $this->configFactory->get('mimemail.settings')->get('format')) {
         $format = filter_fallback_format();
       }
       $message['body'] = check_markup($message['body'], $format);
@@ -81,15 +155,15 @@ class MimeMail extends PhpMail {
     $plaintext = isset($message['params']['plaintext']) ? $message['params']['plaintext'] : NULL;
     $attachments = isset($message['params']['attachments']) ? $message['params']['attachments'] : [];
 
-    $site_name = \Drupal::config('system.site')->get('name');
+    $site_name = $this->configFactory->get('system.site')->get('name');
+    $site_mail = $this->configFactory->get('system.site')->get('mail');
     //$site_mail = variable_get('site_mail', ini_get('sendmail_from'));
-    $site_mail = \Drupal::config('system.site')->get('mail');
     /*$simple_address = variable_get('mimemail_simple_address', 0);*/
 
     // Override site mails default sender.
     if ((empty($from) || $from == $site_mail)) {
-      $mimemail_name = \Drupal::config('mimemail.settings')->get('name');
-      $mimemail_mail = \Drupal::config('mimemail.settings')->get('mail');
+      $mimemail_name = $this->configFactory->get('mimemail.settings')->get('name');
+      $mimemail_mail = $this->configFactory->get('mimemail.settings')->get('mail');
       $from = [
         'name' => !empty($mimemail_name) ? $mimemail_name : $site_name,
         'mail' => !empty($mimemail_mail) ? $mimemail_mail : $site_mail,
@@ -105,7 +179,7 @@ class MimeMail extends PhpMail {
       if (is_object($to) && isset($to->data['mimemail_textonly'])) {
         $plain = $to->data['mimemail_textonly'];
       }
-      elseif (is_string($to) && \Drupal::service('email.validator')->isValid($to)) {
+      elseif (is_string($to) && $this->emailValidator->isValid($to)) {
         if (is_object($account = user_load_by_mail($to)) && isset($account->data['mimemail_textonly'])) {
           $plain = $account->data['mimemail_textonly'];
           // Might as well pass the user object to the address function.
@@ -126,7 +200,7 @@ class MimeMail extends PhpMail {
       '#body' => $body,
     ];
 
-    $body = \Drupal::service('renderer')->renderPlain($body);
+    $body = $this->renderer->renderPlain($body);
 
     /*foreach (module_implements('mail_post_process') as $module) {
       $function = $module . '_mail_post_process';

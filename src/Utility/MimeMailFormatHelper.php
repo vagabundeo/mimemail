@@ -9,6 +9,7 @@ use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Url;
+use Drupal\user\UserInterface;
 
 /**
  * Defines a class containing utility methods for formatting mime mail messages.
@@ -46,11 +47,11 @@ class MimeMailFormatHelper {
     }
 
     // It's a user object.
-    if (is_object($address) && isset($address->mail)) {
-      if (empty($address->name) || $simplify) {
-        return $address->mail;
+    if (($address instanceof UserInterface) && $address->getEmail()) {
+      if (empty($address->getAccountName()) || $simplify) {
+        return $address->getEmail();
       }
-      return Mail::formatDisplayName($address->name) . ' <' . $address->mail . '>';
+      return Mail::formatDisplayName($address->getAccountName()) . ' <' . $address->getEmail() . '>';
     }
 
     // It's formatted or unformatted string.

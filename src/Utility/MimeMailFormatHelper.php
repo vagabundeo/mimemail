@@ -59,7 +59,7 @@ class MimeMailFormatHelper {
       if ($simplify) {
         $pattern = '/<(.*?)>/i';
         preg_match_all($pattern, $address, $matches);
-        $address = $matches[1][0] ? $matches[1][0] : $address;
+        $address = isset($matches[1][0]) ? $matches[1][0] : $address;
       }
       return $address;
     }

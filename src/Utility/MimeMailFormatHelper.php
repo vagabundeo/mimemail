@@ -41,7 +41,7 @@ class MimeMailFormatHelper {
       // It's an array of address items.
       $addresses = [];
       foreach ($address as $a) {
-        $addresses[] = static::mimeMailAddress($a);
+        $addresses[] = static::mimeMailAddress($a, $simplify);
       }
       return $addresses;
     }
@@ -54,9 +54,13 @@ class MimeMailFormatHelper {
       return Mail::formatDisplayName($address->getAccountName()) . ' <' . $address->getEmail() . '>';
     }
 
-    // It's formatted or unformatted string.
-    // @todo Shouldn't assume it's valid - should try to re-parse.
+    // It's a formatted or unformatted string.
     if (is_string($address)) {
+      if ($simplify) {
+        $pattern = '/<(.*?)>/i';
+        preg_match_all($pattern, $address, $matches);
+        $address = $matches[1][0] ? $matches[1][0] : $address;
+      }
       return $address;
     }
 

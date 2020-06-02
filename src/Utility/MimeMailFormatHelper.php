@@ -241,7 +241,7 @@ class MimeMailFormatHelper {
         $file = $url;
       }
       else {
-        $url = static::mimeMailUrl($url, 'TRUE');
+        $url = static::mimeMailUrl($url, TRUE);
         // @todo In Drupal 8.8.x file_uri_scheme() has been deprecated.
         // Remove this conditional statement once 8.7.x is unsupported.
         // @see https://www.drupal.org/project/mimemail/issues/3126782
@@ -320,12 +320,12 @@ class MimeMailFormatHelper {
    * @param string $url
    *   The file path.
    * @param bool $to_embed
-   *   (optional) Whether the URL is used to embed the file. Defaults to NULL.
+   *   (optional) Whether the URL is used to embed the file. Defaults to FALSE.
    *
    * @return string
    *   A processed URL.
    */
-  public static function mimeMailUrl($url, $to_embed = NULL) {
+  public static function mimeMailUrl($url, $to_embed = FALSE) {
     $url = urldecode($url);
 
     $to_link = \Drupal::config('mimemail.settings')->get('linkonly');

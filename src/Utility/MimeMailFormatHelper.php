@@ -56,12 +56,14 @@ class MimeMailFormatHelper {
 
     // It's a formatted or unformatted string.
     if (is_string($address)) {
+      $pattern = '/(.*?)<(.*?)>/';
+      preg_match_all($pattern, $address, $matches);
+      $name = isset($matches[1][0]) ? $matches[1][0] : '';
+      $address = isset($matches[2][0]) ? $matches[2][0] : $address;
       if ($simplify) {
-        $pattern = '/<(.*?)>/i';
-        preg_match_all($pattern, $address, $matches);
-        $address = isset($matches[1][0]) ? $matches[1][0] : $address;
+        return $address;
       }
-      return $address;
+      return Mail::formatDisplayName(trim($name)) . ' <' . $address . '>';
     }
 
     return FALSE;

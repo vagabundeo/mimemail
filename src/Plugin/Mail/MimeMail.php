@@ -158,7 +158,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     $site_name = $this->configFactory->get('system.site')->get('name');
     $site_mail = $this->configFactory->get('system.site')->get('mail');
     //$site_mail = variable_get('site_mail', ini_get('sendmail_from'));
-    /*$simple_address = variable_get('mimemail_simple_address', 0);*/
+    $simple_address = $this->configFactory->get('mimemail.settings')->get('simple_address');
 
     // Override site mails default sender.
     if ((empty($from) || $from == $site_mail)) {
@@ -212,8 +212,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     $mail = MimeMailFormatHelper::mimeMailHtmlBody($body, $subject, $plain, $plaintext, $attachments);
     $headers = array_merge($message['headers'], $headers, $mail['headers']);
 
-    //$message['to'] = MimeMailFormatHelper::mimeMailAddress($to, $simple_address);
-    $message['to'] = MimeMailFormatHelper::mimeMailAddress($to);
+    $message['to'] = MimeMailFormatHelper::mimeMailAddress($to, $simple_address);
     $message['from'] = $from;
     $message['subject'] = $subject;
     $message['body'] = $mail['body'];

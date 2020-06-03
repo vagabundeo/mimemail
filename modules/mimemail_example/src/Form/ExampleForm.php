@@ -172,7 +172,16 @@ class ExampleForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (!$this->emailValidator->isValid($form_state->getValue('to'))) {
+    // Extract the address part of the entered email before trying to validate.
+    // The email.validator service does not work on RFC2822 formatted addresses
+    // so we need to extract the RFC822 part out first. This is not as good as
+    // actually validating the full RFC2822 address, but it is better than
+    // either just validating RFC822 or not validating at all.
+    $pattern = '/<(.*?)>/';
+    $address = $form_state->getValue('to');
+    preg_match_all($pattern, $address, $matches);
+    $address = isset($matches[1][0]) ? $matches[1][0] : $address;
+    if (!$this->emailValidator->isValid($address)) {
       $form_state->setErrorByName('to', $this->t('That email address is not valid.'));
     }
 

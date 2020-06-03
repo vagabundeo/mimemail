@@ -12,7 +12,7 @@ use Drupal\mimemail\Utility\MimeMailFormatHelper;
  *
  * @group mimemail
  */
-class MimeMailKernelTest extends KernelTestBase {
+class MimeMailFormatHelperTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}

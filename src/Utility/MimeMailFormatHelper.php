@@ -17,26 +17,38 @@ use Drupal\user\UserInterface;
 class MimeMailFormatHelper {
 
   /**
-   * Formats an address string.
+   * Formats an email address as a string.
    *
-   * @todo Could use some enhancement and stress testing.
-   *
-   * @param mixed $address
-   *   A user object, a text email address or an array containing name, mail.
+   * @param string|array|\Drupal\user\UserInterface $address
+   *   MimeMailFormatHelper::mimeMailAddress() accepts addresses in one of
+   *   four different formats:
+   *   - A text email address, e.g. someone@example.com.
+   *   - An array where the values are each a text email address.
+   *   - An associative array to represent one email address, containing keys:
+   *     - mail: A text email address, as above.
+   *     - (optional) name: A text name to accompany the email address,
+   *       e.g. 'John Doe'.
+   *   - A fully loaded object implementing \Drupal\user\UserInterface.
    * @param bool $simplify
-   *   Determines if the address needs to be simplified. Defaults to FALSE.
+   *   Whether to simply the formatted email address. Defaults to FALSE.
    *
-   * @return string
-   *   A formatted address string or FALSE.
+   * @return string|false
+   *   A RFC-2822 formatted email address string, or FALSE if the address
+   *   parameter passed in is not one of the allowed data types.
    */
   public static function mimeMailAddress($address, $simplify = FALSE) {
+    // It's an array containing 'mail' and/or 'name',
+    // or it's an array of address items.
     if (is_array($address)) {
       // It's an array containing 'mail' and/or 'name'.
       if (isset($address['mail'])) {
-        if (empty($address['name']) || $simplify) {
-          return $address['mail'];
+        // Return full RFC2822 format only if we're NOT simplifying AND
+        // the account name is NOT empty.
+        if (!$simplify && !empty($address['name'])) {
+          return Mail::formatDisplayName($address['name']) . ' <' . $address['mail'] . '>';
         }
-        return Mail::formatDisplayName($address['name']) . ' <' . $address['mail'] . '>';
+        // All other combinations, return a simple email.
+        return $address['mail'];
       }
       // It's an array of address items.
       $addresses = [];
@@ -48,22 +60,40 @@ class MimeMailFormatHelper {
 
     // It's a user object.
     if (($address instanceof UserInterface) && $address->getEmail()) {
-      if (empty($address->getAccountName()) || $simplify) {
-        return $address->getEmail();
+      // Return full RFC2822 format only if we're NOT simplifying AND
+      // the account name is NOT empty.
+      if (!$simplify && !empty($address->getAccountName())) {
+        return Mail::formatDisplayName($address->getAccountName()) . ' <' . $address->getEmail() . '>';
       }
-      return Mail::formatDisplayName($address->getAccountName()) . ' <' . $address->getEmail() . '>';
+      // All other combinations, return a simple email.
+      return $address->getEmail();
     }
 
     // It's a formatted or unformatted string.
+    // The logic is a little different here because we didn't recieve the
+    // string already separated into parts like we had in the above cases.
     if (is_string($address)) {
       $pattern = '/(.*?)<(.*?)>/';
       preg_match_all($pattern, $address, $matches);
+      // $name is the entire string before the first '<'.
       $name = isset($matches[1][0]) ? $matches[1][0] : '';
-      $address = isset($matches[2][0]) ? $matches[2][0] : $address;
+      // $bare_address is the string between the first '<' and the last '>'.
+      $bare_address = isset($matches[2][0]) ? $matches[2][0] : $address;
+
+      // If we're simplifying, we just need the bare address.
       if ($simplify) {
-        return $address;
+        return $bare_address;
       }
-      return Mail::formatDisplayName(trim($name)) . ' <' . $address . '>';
+      else {
+        // If there is no $name, then assume what we've been given is already
+        // in a valid RFC2822 format.
+        if (empty(trim($name))) {
+          return $address;
+        }
+        // Put $address into full RFC2822 format only if we're NOT simplifying
+        // AND the account name is NOT empty.
+        return Mail::formatDisplayName(trim($name)) . ' <' . $bare_address . '>';
+      }
     }
 
     return FALSE;

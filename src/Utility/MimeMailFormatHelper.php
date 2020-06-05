@@ -17,6 +17,20 @@ use Drupal\user\UserInterface;
 class MimeMailFormatHelper {
 
   /**
+   * Line terminator.
+   *
+   * @see http://tools.ietf.org/html/rfc2822#section-2.1
+   */
+  const CRLF = "\r\n";
+
+  /**
+   * Suggested line length in characters, not counting terminator characters.
+   *
+   * @see http://tools.ietf.org/html/rfc2822#section-2.2.1
+   */
+  const RFC2822_MAXLEN = 78;
+
+  /**
    * Formats an email address as a string.
    *
    * @param string|array|\Drupal\user\UserInterface $address
@@ -551,7 +565,7 @@ class MimeMailFormatHelper {
       }
 
       $body .= "\n--$boundary\n";
-      $body .= static::mimeMailRfcHeaders($part_headers) . "\n\n";
+      $body .= static::mimeMailRfcHeaders($part_headers) . "\n";
       $body .= isset($part_body) ? $part_body : '';
     }
     $body .= "\n--$boundary--\n";
@@ -560,38 +574,51 @@ class MimeMailFormatHelper {
   }
 
   /**
-   * Makes headers RFC2822-compliant for the mail message or its MIME parts.
+   * Makes mail message and MIME part headers RFC2822-compliant.
    *
-   * @todo Could use some enhancement and stress testing.
+   * Implements and enforces header field formatting including line length,
+   * line termination, and line folding as specified in RFC2822.
    *
    * @param array $headers
-   *   An array of headers.
+   *   An array of headers where the keys are header field names and the
+   *   values are the header field bodies.
    *
    * @return string
-   *   A string containing the headers.
+   *   One string containing a concatenation of all formatted header fields,
+   *   suitable for directly including in an email.
+   *
+   * @see http://tools.ietf.org/html/rfc2822#section-2.2
    */
   public static function mimeMailRfcHeaders(array $headers) {
+    // Use RFC2822 terminology for all variables - 'header' refers to the
+    // collection of all header fields. Each header field is composed of
+    // a header field name followed by a colon followed by the header field
+    // body, terminated by CRLF.
     $header = '';
-    $crlf = Settings::get('mail_line_endings', PHP_EOL);
-    foreach ($headers as $key => $value) {
-      $key = trim($key);
+    foreach ($headers as $field_name => $field_body) {
+      // Header field names should not have leading or trailing whitespace.
+      $field_name = trim($field_name);
+
       // Collapse spaces and get rid of newline characters.
-      $value = preg_replace('/(\s+|\n|\r|^\s|\s$)/', ' ', $value);
+      $field_body = trim($field_body);
+      $field_body = preg_replace('/(\s+|\n|\r)/', ' ', $field_body);
+
       // Fold headers if they're too long.
       // A CRLF may be inserted before any WSP.
       // @see http://tools.ietf.org/html/rfc2822#section-2.2.3
-      if (mb_strlen($value) > 60) {
+      $header_field = $field_name . ': ' . $field_body;
+      if (mb_strlen($header_field) >= static::RFC2822_MAXLEN) {
         // If there's a semicolon, use that to separate.
-        if (count($array = preg_split('/;\s*/', $value)) > 1) {
-          $value = trim(implode(";$crlf ", $array));
+        if (count($array = preg_split('/;\s*/', $header_field)) > 1) {
+          $header_field = trim(implode(';' . static::CRLF . ' ', $array));
         }
-        else {
-          $value = wordwrap($value, 50, "$crlf ", FALSE);
-        }
+        // Always try to wordwrap.
+        $header_field = wordwrap($header_field, static::RFC2822_MAXLEN, static::CRLF . ' ', FALSE);
       }
-      $header .= $key . ": " . $value . $crlf;
+      $header .= $header_field . static::CRLF;
     }
-    return trim($header);
+
+    return $header;
   }
 
   /**
@@ -629,10 +656,10 @@ class MimeMailFormatHelper {
       $headers['From'] = static::mimeMailAddress($headers['From']);
     }
 
-    // Run all headers through mime_header_encode() to convert non-ascii
+    // Run all headers through mime_header_encode() to convert non-ASCII
     // characters to an RFC compliant string, similar to drupal_mail().
-    foreach ($headers as $key => $value) {
-      $headers[$key] = Unicode::mimeHeaderEncode($value);
+    foreach ($headers as $field_name => $field_body) {
+      $headers[$field_name] = Unicode::mimeHeaderEncode($field_body);
     }
 
     return $headers;

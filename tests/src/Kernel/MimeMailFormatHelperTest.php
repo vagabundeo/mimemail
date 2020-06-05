@@ -318,6 +318,123 @@ class MimeMailFormatHelperTest extends KernelTestBase {
   }
 
   /**
+   * Tests making headers RFC822-compliant.
+   *
+   * @param array $headers
+   *   An array of headers where the keys are header field names and the
+   *   values are the header field bodies.
+   * @param string $expected
+   *   One string containing a concatenation of all formatted header fields.
+   *
+   * @dataProvider providerRfcHeaders
+   * @covers ::mimeMailRfcHeaders
+   */
+  public function testRfcHeaders(array $headers, $expected) {
+    $actual = MimeMailFormatHelper::mimeMailRfcHeaders($headers);
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * Provides test data for testRfcHeaders().
+   */
+  public function providerRfcHeaders() {
+    // Format of each element is:
+    // - headers: An associative array of header fields to test. Each element
+    //   is keyed by the header field name, which the array value being the
+    //   header field body.
+    // - expected: Expected return value from
+    //   MimeMailFormatHelper::mimeMailRfcHeaders($headers).
+    $headers = [
+      'Multipart mail message header' => [
+        [
+          'MIME-Version' => '1.0',
+          'ContentType' => 'multipart/mixed; boundary="379e3cea84af565a8053ea9e61054fc1294536001"',
+          'Content-Transfer-Encoding' => '8bit',
+        ],
+        "MIME-Version: 1.0\r\n" .
+        "ContentType: multipart/mixed;\r\n boundary=\"379e3cea84af565a8053ea9e61054fc1294536001\"\r\n" .
+        "Content-Transfer-Encoding: 8bit\r\n",
+      ],
+      'Plaintext mail message header' => [
+        [
+          'MIME-Version' => '1.0',
+          'Content-Type' => 'text/plain; charset=utf-8',
+          'Content-Transfer-Encoding' => '8bit',
+        ],
+        "MIME-Version: 1.0\r\n" .
+        "Content-Type: text/plain; charset=utf-8\r\n" .
+        "Content-Transfer-Encoding: 8bit\r\n",
+      ],
+      'Plaintext MIME part header' => [
+        [
+          'Content-Type' => 'text/plain; charset=utf-8',
+          'Content-Disposition' => 'inline',
+          'Content-Transfer-Encoding' => '8bit',
+        ],
+        "Content-Type: text/plain; charset=utf-8\r\n" .
+        "Content-Disposition: inline\r\n" .
+        "Content-Transfer-Encoding: 8bit\r\n",
+      ],
+      'HTML MIME part header' => [
+        [
+          'ContentType' => 'text/html; charset=utf-8',
+          'Content-Disposition' => 'inline',
+          'Content-Transfer-Encoding' => '8bit',
+        ],
+        "ContentType: text/html; charset=utf-8\r\n" .
+        "Content-Disposition: inline\r\n" .
+        "Content-Transfer-Encoding: 8bit\r\n",
+      ],
+      'Multipart alternative MIME part header' => [
+        [
+          'ContentType' => 'multipart/alternative; boundary="233fe3c3a9841692454109103d46c2362d0ebe050"',
+          'Content-Transfer-Encoding' => '8bit',
+        ],
+        "ContentType: multipart/alternative;\r\n boundary=\"233fe3c3a9841692454109103d46c2362d0ebe050\"\r\n" .
+        "Content-Transfer-Encoding: 8bit\r\n",
+      ],
+      'PNG image attachment part header' => [
+        [
+          'Content-ID' => '<6152ca67d63c8f310d767bcdcdef9563@test.example.com>',
+          'ContentType' => 'image/png; name="selfie.png"',
+          'Content-Disposition' => 'attachment; filename="selfie.png"',
+          'Content-Transfer-Encoding' => 'base64',
+        ],
+        "Content-ID: <6152ca67d63c8f310d767bcdcdef9563@test.example.com>\r\n" .
+        "ContentType: image/png; name=\"selfie.png\"\r\n" .
+        "Content-Disposition: attachment; filename=\"selfie.png\"\r\n" .
+        "Content-Transfer-Encoding: base64\r\n",
+      ],
+      'JPG image attachment part header' => [
+        [
+          'Content-ID' => '<ea5183a8aaaacf76b4676e33a7788cc4@test.example.com>',
+          'ContentType' => 'image/jpeg; name="spruce.jpg"',
+          'Content-Disposition' => 'attachment; filename="spruce.jpg"',
+          'Content-Transfer-Encoding' => 'base64',
+        ],
+        "Content-ID: <ea5183a8aaaacf76b4676e33a7788cc4@test.example.com>\r\n" .
+        "ContentType: image/jpeg; name=\"spruce.jpg\"\r\n" .
+        "Content-Disposition: attachment; filename=\"spruce.jpg\"\r\n" .
+        "Content-Transfer-Encoding: base64\r\n",
+      ],
+      'PDF file attachment part header' => [
+        [
+          'Content-ID' => '<3360eda02899acf5ec5965dbd6717332@test.example.com>',
+          'ContentType' => 'application/pdf; name="Really_Long_Filename_That_Should_Be_Wrapped.pdf"',
+          'Content-Disposition' => 'attachment; filename="Really_Long_Filename_That_Should_Be_Wrapped.pdf"',
+          'Content-Transfer-Encoding' => 'base64',
+        ],
+        "Content-ID: <3360eda02899acf5ec5965dbd6717332@test.example.com>\r\n" .
+        "ContentType: application/pdf;\r\n name=\"Really_Long_Filename_That_Should_Be_Wrapped.pdf\"\r\n" .
+        "Content-Disposition: attachment;\r\n filename=\"Really_Long_Filename_That_Should_Be_Wrapped.pdf\"\r\n" .
+        "Content-Transfer-Encoding: base64\r\n",
+      ],
+    ];
+
+    return $headers;
+  }
+
+  /**
    * Tests the regular expression for extracting the mail address.
    *
    * @covers ::mimeMailHeaders

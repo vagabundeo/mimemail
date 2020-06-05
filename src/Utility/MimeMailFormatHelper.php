@@ -293,17 +293,8 @@ class MimeMailFormatHelper {
       }
       else {
         $url = static::mimeMailUrl($url, TRUE);
-        // @todo In Drupal 8.8.x file_uri_scheme() has been deprecated.
-        // Remove this conditional statement once 8.7.x is unsupported.
-        // @see https://www.drupal.org/project/mimemail/issues/3126782
-        if (version_compare(substr(\Drupal::VERSION, 0, 3), '8.8', '>=')) {
-          // The $url is absolute, we're done here.
-          $scheme = StreamWrapperManager::getScheme($url);
-        }
-        else {
-          // The $url is absolute, we're done here.
-          $scheme = file_uri_scheme($url);
-        }
+        // The $url is absolute, we're done here.
+        $scheme = StreamWrapperManager::getScheme($url);
         if ($scheme == 'http' || $scheme == 'https' || preg_match('!mailto:!', $url)) {
           return $url;
         }
@@ -381,15 +372,7 @@ class MimeMailFormatHelper {
 
     $to_link = \Drupal::config('mimemail.settings')->get('linkonly');
     $is_image = preg_match('!\.(png|gif|jpg|jpeg)!i', $url);
-    // @todo In Drupal 8.8.x FileSystem::uriScheme() has been deprecated.
-    // Remove this conditional statement once 8.7.x is unsupported.
-    // @see https://www.drupal.org/project/mimemail/issues/3126782
-    if (version_compare(substr(\Drupal::VERSION, 0, 3), '8.8', '>=')) {
-      $is_absolute = StreamWrapperManager::getScheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
-    }
-    else {
-      $is_absolute = \Drupal::service('file_system')->uriScheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
-    }
+    $is_absolute = StreamWrapperManager::getScheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
 
     // Strip the base path as Uri adds it again at the end.
     $base_path = rtrim(base_path(), '/');

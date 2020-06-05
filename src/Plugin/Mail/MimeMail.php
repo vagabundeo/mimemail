@@ -207,7 +207,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
       $function($body, $key);
     }*/
 
-    //$plain = $plain || variable_get('mimemail_textonly', 0);
+    $plain = $plain || $this->configFactory->get('mimemail.settings')->get('textonly');
     $from = MimeMailFormatHelper::mimeMailAddress($from);
     $mail = MimeMailFormatHelper::mimeMailHtmlBody($body, $subject, $plain, $plaintext, $attachments);
     $headers = array_merge($message['headers'], $headers, $mail['headers']);

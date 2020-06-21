@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Mail;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Mail\MailFormatHelper;
-use Drupal\Core\Site\Settings;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
@@ -480,6 +479,9 @@ class MimeMailFormatHelper {
    *   - headers: An array that includes some headers for the mail to be sent.
    */
   public static function mimeMailMultipartBody(array $parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part = FALSE) {
+    /** @var \Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser */
+    $mime_type_guesser = \Drupal::service('file.mime_type.guesser');
+
     // Control variable to avoid boundary collision.
     static $part_num = 0;
 
@@ -488,7 +490,7 @@ class MimeMailFormatHelper {
     $headers = ['Content-Type' => "$content_type; boundary=\"$boundary\""];
     if (!$sub_part) {
       $headers['MIME-Version'] = '1.0';
-      $body = "This is a multi-part message in MIME format.\n";
+      $body = 'This is a multi-part message in MIME format.' . static::CRLF;
     }
 
     foreach ($parts as $part) {
@@ -532,7 +534,7 @@ class MimeMailFormatHelper {
         }
 
         if (!isset($part['Content-Type'])) {
-          $part['Content-Type'] = \Drupal::service('file.mime_type.guesser')->guess($part['file']);
+          $part['Content-Type'] = $mime_type_guesser->guess($part['file']);
         }
 
         if (isset($part['name'])) {
@@ -542,16 +544,15 @@ class MimeMailFormatHelper {
 
         if (isset($part['file'])) {
           $file = (is_file($part['file'])) ? file_get_contents($part['file']) : $part['file'];
-          $part_body = chunk_split(base64_encode($file), 76, Settings::get('mail_line_endings', PHP_EOL));
-
+          $part_body = chunk_split(base64_encode($file), 76, static::CRLF);
         }
       }
 
-      $body .= "\n--$boundary\n";
-      $body .= static::mimeMailRfcHeaders($part_headers) . "\n";
+      $body .= static::CRLF . "--$boundary" . static::CRLF;
+      $body .= static::mimeMailRfcHeaders($part_headers) . static::CRLF;
       $body .= isset($part_body) ? $part_body : '';
     }
-    $body .= "\n--$boundary--\n";
+    $body .= static::CRLF . "--$boundary--" . static::CRLF;
 
     return ['headers' => $headers, 'body' => $body];
   }

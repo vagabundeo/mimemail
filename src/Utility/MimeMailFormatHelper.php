@@ -172,7 +172,18 @@ class MimeMailFormatHelper {
 
       // Expand all local links.
       $pattern = '/(<a[^>]+href=")([^"]*)/mi';
-      $body = preg_replace_callback($pattern, [MimeMailFormatHelper::class, 'expandLinks'], $body);
+      $body = preg_replace_callback(
+        $pattern,
+        function ($matches) {
+          // matches[1] is the anchor tag starting with the <, up to and
+          // including the starting quote of the href attribute.
+          //
+          // matches[2] is everything between quotes in the href attribute
+          // of an anchor tag.
+          return $matches[1] . self::mimeMailUrl($matches[2]);
+        },
+        $body
+      );
 
       $mime_parts = static::mimeMailExtractFiles($body);
 
@@ -235,7 +246,27 @@ class MimeMailFormatHelper {
    */
   public static function mimeMailExtractFiles($html) {
     $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |[\s]src=[\'"]?)([^\'>"]+)([\'"]?)/mis';
-    $content = preg_replace_callback($pattern, [MimeMailFormatHelper::class, 'replaceFiles'], $html);
+    $content = preg_replace_callback(
+      $pattern,
+      function ($matches) {
+        // matches[1] is one of:
+        // - A link tag starting with the <, up to and including the starting
+        //   quote of the href attribute. OR,
+        // - An object tag starting with the <, up to and including the starting
+        //   quote of the codebase attribute. OR,
+        // - A CSS @import rule starting with the @, up to and including the
+        //   starting quote of the url property. OR,
+        // - A tag with a src attribute, starting with the whitespace before the
+        //   src, up to and including the starting quote of the src attribute.
+        //
+        // matches[2] is everything between quotes after one of the above
+        // matches.
+        //
+        // matches[3] is the trailing quote.
+        return stripslashes($matches[1]) . self::mimeMailFile($matches[2]) . stripslashes($matches[3]);
+      },
+      $html
+    );
 
     $encoding = '8Bit';
     $body = explode("\n", $content);
@@ -647,28 +678,6 @@ class MimeMailFormatHelper {
     }
 
     return $headers;
-  }
-
-  /**
-   * Callback for preg_replace_callback.
-   *
-   * @param $matches
-   *
-   * @return string
-   */
-  public static function expandLinks($matches) {
-    return $matches[1] . self::mimeMailUrl($matches[2]);
-  }
-
-  /**
-   * Callback for preg_replace_callback.
-   *
-   * @param $matches
-   *
-   * @return string
-   */
-  public static function replaceFiles($matches) {
-    return stripslashes($matches[1]) . self::mimeMailFile($matches[2]) . stripslashes($matches[3]);
   }
 
 }

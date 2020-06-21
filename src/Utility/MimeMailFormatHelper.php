@@ -354,7 +354,9 @@ class MimeMailFormatHelper {
         $type = ($name) ? \Drupal::service('file.mime_type.guesser')->guess($name) : \Drupal::service('file.mime_type.guesser')->guess($file);
       }
 
-      $id = md5($file) . '@' . $_SERVER['HTTP_HOST'];
+      // HTTP host requested.
+      $request_host = \Drupal::requestStack()->getCurrentRequest()->getHttpHost();
+      $id = md5($file) . '@' . $request_host;
 
       // Prevent duplicate items.
       if (isset($ids[$id])) {
@@ -516,7 +518,11 @@ class MimeMailFormatHelper {
     // Control variable to avoid boundary collision.
     static $part_num = 0;
 
-    $boundary = sha1(uniqid($_SERVER['REQUEST_TIME'], TRUE)) . $part_num++;
+    // Compute boundary hash.
+    $request_time = \Drupal::time()->getRequestTime();
+    $boundary = sha1(uniqid($request_time, TRUE)) . $part_num++;
+
+    // Header for mail body.
     $body = '';
     $headers = ['Content-Type' => "$content_type; boundary=\"$boundary\""];
     if (!$sub_part) {

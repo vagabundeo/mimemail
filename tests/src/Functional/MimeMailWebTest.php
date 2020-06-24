@@ -18,6 +18,8 @@ class MimeMailWebTest extends BrowserTestBase {
   protected static $modules = [
     'mailsystem',
     'mimemail',
+    'field',
+    'field_ui',
   ];
 
   /**

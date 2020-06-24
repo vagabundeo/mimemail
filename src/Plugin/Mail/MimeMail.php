@@ -157,7 +157,6 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
 
     $site_name = $this->configFactory->get('system.site')->get('name');
     $site_mail = $this->configFactory->get('system.site')->get('mail');
-    //$site_mail = variable_get('site_mail', ini_get('sendmail_from'));
     $simple_address = $this->configFactory->get('mimemail.settings')->get('simple_address');
 
     // Override site mails default sender.
@@ -176,12 +175,11 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     }
     // Try to determine recipient's text mail preference.
     elseif (is_null($plain)) {
-      if (is_object($to) && isset($to->data['mimemail_textonly'])) {
-        $plain = $to->data['mimemail_textonly'];
-      }
-      elseif (is_string($to) && $this->emailValidator->isValid($to)) {
-        if (is_object($account = user_load_by_mail($to)) && isset($account->data['mimemail_textonly'])) {
-          $plain = $account->data['mimemail_textonly'];
+      if (is_string($to) && $this->emailValidator->isValid($to)) {
+        $user_plaintext_field = $this->configFactory->get('mimemail.settings')->get('user_plaintext_field');
+        if (is_object($account = user_load_by_mail($to)) && $account->hasField($user_plaintext_field)) {
+          /* @var boolean $plain */
+          $plain = $account->{$user_plaintext_field}->value;
           // Might as well pass the user object to the address function.
           $to = $account;
         }

@@ -11,7 +11,7 @@ use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 
 /**
- * Defines a class containing utility methods for formatting mime mail messages.
+ * Utility methods for formatting MIME-encoded email messages.
  */
 class MimeMailFormatHelper {
 
@@ -115,7 +115,7 @@ class MimeMailFormatHelper {
   /**
    * Generates a multipart message body with a plaintext alternative.
    *
-   * The first mime part is a multipart/alternative containing mime-encoded
+   * The first MIME part is a multipart/alternative containing MIME-encoded
    * sub-parts for HTML and plaintext. Each subsequent part is the required
    * image or attachment.
    *
@@ -557,6 +557,7 @@ class MimeMailFormatHelper {
       $body = 'This is a multi-part message in MIME format.' . static::CRLF;
     }
 
+    // Part headers and contents.
     foreach ($parts as $part) {
       $part_headers = [];
 

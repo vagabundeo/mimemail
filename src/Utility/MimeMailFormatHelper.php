@@ -313,6 +313,24 @@ class MimeMailFormatHelper {
     static $files = [];
     static $ids = [];
 
+    /** @var \Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser */
+    $mime_type_guesser = \Drupal::service('file.mime_type.guesser');
+
+    /** @var \Drupal\Core\File\FileSystemInterface $file_system */
+    $file_system = \Drupal::service('file_system');
+
+    /** @var \Drupal\Core\Config\ImmutableConfig file_config */
+    $file_config = \Drupal::config('system.file');
+
+    /** @var \Symfony\Component\HttpFoundation\Request $current_request */
+    $current_request = \Drupal::requestStack()->getCurrentRequest();
+
+    /** @var \Drupal\Core\Session\AccountProxyInterface $current_user */
+    $current_user = \Drupal::currentUser();
+
+    /** @var \Drupal\Core\Config\ImmutableConfig $mimemail_config */
+    $mimemail_config = \Drupal::config('mimemail.settings');
+
     if ($url) {
       $image = preg_match('!\.(png|gif|jpg|jpeg)$!i', $url);
       $linkonly = \Drupal::config('mimemail.settings')->get('linkonly');
@@ -330,7 +348,7 @@ class MimeMailFormatHelper {
         }
         // The $url is a non-local URI that needs to be converted to a URL.
         else {
-          $file = (\Drupal::service('file_system')->realpath($url)) ? \Drupal::service('file_system')->realpath($url) : file_create_url($url);
+          $file = $file_system->realpath($url) ? $file_system->realpath($url) : file_create_url($url);
         }
       }
     }
@@ -340,9 +358,9 @@ class MimeMailFormatHelper {
     }
 
     if (isset($file) && (@is_file($file) || $content)) {
-      $public_path = \Drupal::config('system.file')->get('default_scheme') . '://';
-      $no_access = !\Drupal::currentUser()->hasPermission('send arbitrary files');
-      $not_in_public_path = mb_strpos(\Drupal::service('file_system')->realpath($file), \Drupal::service('file_system')->realpath($public_path)) !== 0;
+      $public_path = $file_config->get('default_scheme') . '://';
+      $no_access = !$current_user->hasPermission('send arbitrary files');
+      $not_in_public_path = mb_strpos($file_system->realpath($file), $file_system->realpath($public_path)) !== 0;
       if (@is_file($file) && $not_in_public_path && $no_access) {
         return $url;
       }
@@ -351,12 +369,12 @@ class MimeMailFormatHelper {
         $name = (@is_file($file)) ? basename($file) : 'attachment.dat';
       }
       if (!$type) {
-        $type = ($name) ? \Drupal::service('file.mime_type.guesser')->guess($name) : \Drupal::service('file.mime_type.guesser')->guess($file);
+        // @todo $name will ALWAYS be TRUE here because of the above if{}.
+        $type = ($name) ? $mime_type_guesser->guess($name) : $mime_type_guesser->guess($file);
       }
 
-      // HTTP host requested.
-      $request_host = \Drupal::requestStack()->getCurrentRequest()->getHttpHost();
-      $id = md5($file) . '@' . $request_host;
+      // Generate a unique ID using the HTTP host requested.
+      $id = md5($file) . '@' . $current_request->getHttpHost();
 
       // Prevent duplicate items.
       if (isset($ids[$id])) {
@@ -400,9 +418,15 @@ class MimeMailFormatHelper {
    *   A processed URL.
    */
   public static function mimeMailUrl($url, $to_embed = FALSE) {
+    /** @var \Drupal\Core\Config\ImmutableConfig $mimemail_config */
+    $mimemail_config = \Drupal::config('mimemail.settings');
+
+    /** @var \Drupal\Core\Language\LanguageInterface $language_manager */
+    $language_manager = \Drupal::languageManager();
+
     $url = urldecode($url);
 
-    $to_link = \Drupal::config('mimemail.settings')->get('linkonly');
+    $to_link = $mimemail_config->get('linkonly');
     $is_image = preg_match('!\.(png|gif|jpg|jpeg)!i', $url);
     $is_absolute = StreamWrapperManager::getScheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
 
@@ -443,11 +467,11 @@ class MimeMailFormatHelper {
     }
 
     // Get a list of enabled languages.
-    $languages = \Drupal::languageManager()->getLanguages(LanguageInterface::STATE_ALL);
+    $languages = $language_manager->getLanguages(LanguageInterface::STATE_ALL);
 
     // Default language settings.
     $prefix = '';
-    $language = \Drupal::languageManager()->getDefaultLanguage();
+    $language = $language_manager->getDefaultLanguage();
 
     // Check for language prefix.
     $args = explode('/', $path);
@@ -512,14 +536,17 @@ class MimeMailFormatHelper {
    *   - headers: An array that includes some headers for the mail to be sent.
    */
   public static function mimeMailMultipartBody(array $parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part = FALSE) {
-    /** @var \Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser */
-    $mime_type_guesser = \Drupal::service('file.mime_type.guesser');
-
     // Control variable to avoid boundary collision.
     static $part_num = 0;
 
+    /** @var \Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser */
+    $mime_type_guesser = \Drupal::service('file.mime_type.guesser');
+
+    /** @var \Drupal\Component\Datetime\TimeInterface $time */
+    $time = \Drupal::time();
+
     // Compute boundary hash.
-    $request_time = \Drupal::time()->getRequestTime();
+    $request_time = $time->getRequestTime();
     $boundary = sha1(uniqid($request_time, TRUE)) . $part_num++;
 
     // Header for mail body.
@@ -654,10 +681,12 @@ class MimeMailFormatHelper {
    *   Overwritten headers.
    */
   public static function mimeMailHeaders(array $headers, $from = NULL) {
-    $default_from = \Drupal::config('system.site')->get('mail');
+    /** @var \Drupal\Core\Config\ImmutableConfig $site_config */
+    $site_config = \Drupal::config('system.site');
 
     // Overwrite standard headers.
     if ($from) {
+      $default_from = $site_config->get('mail');
       if (!isset($headers['From']) || $headers['From'] == $default_from) {
         $headers['From'] = $from;
       }

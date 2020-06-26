@@ -103,7 +103,8 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
       if (!$format = $this->configFactory->get('mimemail.settings')->get('format')) {
         $format = filter_fallback_format();
       }
-      $message['body'] = check_markup($message['body'], $format);
+      $langcode = isset($message['langcode']) ? $message['langcode'] : '';
+      $message['body'] = check_markup($message['body'], $format, $langcode);
     }
 
     $message = $this->prepareMessage($message);

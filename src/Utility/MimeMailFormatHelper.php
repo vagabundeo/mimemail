@@ -211,9 +211,13 @@ class MimeMailFormatHelper {
         $content = isset($a->filecontent) ? $a->filecontent : NULL;
         $name = isset($a->filename) ? $a->filename : NULL;
         $type = isset($a->filemime) ? $a->filemime : NULL;
+        // Add this attachment to the cumulative manifest being built by
+        // mimeMailFile().
         static::mimeMailFile($path, $content, $name, $type, 'attachment');
-        $parts = array_merge($parts, static::mimeMailFile());
       }
+      // Fetch the cumulative manifest from mimeMailFile() and merge it with
+      // the other parts of this message.
+      $parts = array_merge($parts, static::mimeMailFile());
     }
 
     return static::mimeMailMultipartBody($parts, $content_type);
@@ -292,26 +296,54 @@ class MimeMailFormatHelper {
   }
 
   /**
-   * Helper function to extract local files.
+   * Builds a manifest containing metadata about files attached to an email.
+   *
+   * Calling this function with either a $url argument or a $content argument
+   * will generate metadata for the file described by that argument and will
+   * accumulate that metadata internally in a static array. Subsequent calls
+   * with one of these arguments will add additional metadata to this internal
+   * array.
+   *
+   * Calling this function with no arguments will return everything stored in
+   * the internal static array by all previous calls (this is the 'manifest'),
+   * then will clear the contents of the internal static array.
+   *
+   * The manifest is an associative array indexed by the Content-ID, which is a
+   * unique identifier calculated internally using a hash of the attachment name
+   * and the server's host name. The required (always present) keys of this
+   * manifest array are:
+   * - name: The file name of the attachment.
+   * - file: The absolute URL of the file or the contents of the file.
+   * - Content-ID: The unique identifier of the file.
+   * - Content-Disposition: How the file is attached - either 'inline' or
+   *   'attachment'.
+   * - Content-Type: MIME type of the file.
    *
    * @param string $url
-   *   (optional) The URI or the absolute URL to the file.
+   *   (optional) The URI or the absolute URL of the file.
    * @param string $content
-   *   (optional) The actual file content.
+   *   (optional) The actual file content. This is required if $url is not set.
    * @param string $name
    *   (optional) The file name.
    * @param string $type
-   *   (optional) The file type.
+   *   (optional) The MIME type of the file.
    * @param string $disposition
-   *   (optional) The content disposition. Defaults to inline.
+   *   (optional) The content disposition. One of 'inline' or 'attachment'.
+   *   Defaults to 'inline'.
    *
    * @return mixed
-   *   The Content-ID and/or an array of the files on success or the URL on
-   *   failure.
+   *   Returned value is one of:
+   *   - The Content-ID, if this function is called with either a $url or a
+   *     $content argument.
+   *   - An array of accumulated metadata indexed by Content-ID if this function
+   *     is called with no arguments. The structure of this metadata (the
+   *     'manifest') is described above.
+   *   - URL if the $url is not a local file and $content is not set.
    */
   public static function mimeMailFile($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'inline') {
+    // A cumulative manifest of metadata about the files that are attached
+    // to an email message.
     static $files = [];
-    static $ids = [];
 
     /** @var \Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser */
     $mime_type_guesser = \Drupal::service('file.mime_type.guesser');
@@ -376,25 +408,27 @@ class MimeMailFormatHelper {
       // Generate a unique ID using the HTTP host requested.
       $id = md5($file) . '@' . $current_request->getHttpHost();
 
-      // Prevent duplicate items.
-      if (isset($ids[$id])) {
-        return 'cid:' . $ids[$id];
+      // Prevent attaching the same file more than once. For example, an image
+      // that's part of the theme may be referenced many times in the HTML, but
+      // should only be attached once.
+      if (!isset($files[$id])) {
+        // This is a new file that needs to be attached.
+        // Store the metadata in our static $files array indexed by $id.
+        $files[$id] = [
+          'name' => $name,
+          'file' => $file,
+          'Content-ID' => $id,
+          'Content-Disposition' => $disposition,
+          'Content-Type' => $type,
+        ];
       }
 
-      $new_file = [
-        'name' => $name,
-        'file' => $file,
-        'Content-ID' => $id,
-        'Content-Disposition' => $disposition,
-        'Content-Type' => $type,
-      ];
-
-      $files[] = $new_file;
-      $ids[$id] = $id;
-
+      // Return the content id for this item.
       return 'cid:' . $id;
     }
-    // The $file does not exist and no $content, return the $url if possible.
+
+    // The $file does not exist and no $content was provided.
+    // Return the $url if possible.
     elseif ($url) {
       return $url;
     }

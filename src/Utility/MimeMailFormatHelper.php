@@ -83,7 +83,7 @@ class MimeMailFormatHelper {
     }
 
     // It's a formatted or unformatted string.
-    // The logic is a little different here because we didn't recieve the
+    // The logic is a little different here because we didn't receive the
     // string already separated into parts like we had in the above cases.
     if (is_string($address)) {
       $pattern = '/(.*?)<(.*?)>/';
@@ -455,7 +455,7 @@ class MimeMailFormatHelper {
     /** @var \Drupal\Core\Config\ImmutableConfig $mimemail_config */
     $mimemail_config = \Drupal::config('mimemail.settings');
 
-    /** @var \Drupal\Core\Language\LanguageInterface $language_manager */
+    /** @var \Drupal\Core\Language\LanguageManagerInterface $language_manager */
     $language_manager = \Drupal::languageManager();
 
     $url = urldecode($url);

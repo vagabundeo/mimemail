@@ -24,13 +24,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
 
   /**
-   * The configuration factory service.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
-
-  /**
    * The module handler service.
    *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
@@ -70,6 +63,8 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
    *   The renderer service.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, EmailValidatorInterface $email_validator, RendererInterface $renderer) {
+    // Bypass parent constructor because the parent statically initializes
+    // $this->configFactory (defined in the parent) instead of injecting it.
     $this->configFactory = $config_factory;
     $this->moduleHandler = $module_handler;
     $this->emailValidator = $email_validator;

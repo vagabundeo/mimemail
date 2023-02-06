@@ -380,7 +380,7 @@ class MimeMailFormatHelper {
         }
         // The $url is a non-local URI that needs to be converted to a URL.
         else {
-          $file = $file_system->realpath($url) ? $file_system->realpath($url) : file_create_url($url);
+          $file = $file_system->realpath($url) ? $file_system->realpath($url) : \Drupal::service('file_url_generator')->generateAbsoluteString($url);
         }
       }
     }
@@ -477,7 +477,7 @@ class MimeMailFormatHelper {
       if ($is_image) {
         if ($to_link) {
           // Exclude images from embedding if needed.
-          $url = file_create_url($url);
+          $url = \Drupal::service('file_url_generator')->generateAbsoluteString($url);
           $url = str_replace(' ', '%20', $url);
         }
         else {

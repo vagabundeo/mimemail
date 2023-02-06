@@ -59,7 +59,7 @@ class MimeMailWebTest extends BrowserTestBase {
 
     $url = 'public://' . $this->randomMachineName() . ' ' . $this->randomMachineName() . '.jpg';
     $result = MimeMailFormatHelper::mimeMailUrl($url, TRUE);
-    $expected = str_replace(' ', '%20', file_create_url($url));
+    $expected = str_replace(' ', '%20', \Drupal::service('file_url_generator')->generateAbsoluteString($url));
     $message = 'Stream wrapper converted to web accessible URL for linked image.';
     $this->assertSame($result, $expected, $message);
   }

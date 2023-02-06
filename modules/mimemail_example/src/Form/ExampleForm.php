@@ -182,7 +182,7 @@ class ExampleForm extends FormBase {
     $pattern = '/<(.*?)>/';
     $address = $form_state->getValue('to');
     preg_match_all($pattern, $address, $matches);
-    $address = isset($matches[1][0]) ? $matches[1][0] : $address;
+    $address = $matches[1][0] ?? $address;
     if (!$this->emailValidator->isValid($address)) {
       $form_state->setErrorByName('to', $this->t('That email address is not valid.'));
     }

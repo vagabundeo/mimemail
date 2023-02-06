@@ -89,9 +89,9 @@ class MimeMailFormatHelper {
       $pattern = '/(.*?)<(.*?)>/';
       preg_match_all($pattern, $address, $matches);
       // $name is the entire string before the first '<'.
-      $name = isset($matches[1][0]) ? $matches[1][0] : '';
+      $name = $matches[1][0] ?? '';
       // $bare_address is the string between the first '<' and the last '>'.
-      $bare_address = isset($matches[2][0]) ? $matches[2][0] : $address;
+      $bare_address = $matches[2][0] ?? $address;
 
       // If we're simplifying, we just need the bare address.
       if ($simplify) {
@@ -207,10 +207,10 @@ class MimeMailFormatHelper {
     if (is_array($attachments) && !empty($attachments)) {
       foreach ($attachments as $a) {
         $a = (object) $a;
-        $path = isset($a->uri) ? $a->uri : (isset($a->filepath) ? $a->filepath : NULL);
-        $content = isset($a->filecontent) ? $a->filecontent : NULL;
-        $name = isset($a->filename) ? $a->filename : NULL;
-        $type = isset($a->filemime) ? $a->filemime : NULL;
+        $path = $a->uri ?? ($a->filepath ?? NULL);
+        $content = $a->filecontent ?? NULL;
+        $name = $a->filename ?? NULL;
+        $type = $a->filemime ?? NULL;
         // Add this attachment to the cumulative manifest being built by
         // mimeMailFile().
         static::mimeMailFile($path, $content, $name, $type, 'attachment');
@@ -649,7 +649,7 @@ class MimeMailFormatHelper {
 
       $body .= static::CRLF . "--$boundary" . static::CRLF;
       $body .= static::mimeMailRfcHeaders($part_headers) . static::CRLF;
-      $body .= isset($part_body) ? $part_body : '';
+      $body .= $part_body ?? '';
     }
     $body .= static::CRLF . "--$boundary--" . static::CRLF;
 

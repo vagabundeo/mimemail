@@ -98,7 +98,7 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
       if (!$format = $this->configFactory->get('mimemail.settings')->get('format')) {
         $format = filter_fallback_format();
       }
-      $langcode = isset($message['langcode']) ? $message['langcode'] : '';
+      $langcode = $message['langcode'] ?? '';
       $message['body'] = check_markup($message['body'], $format, $langcode);
     }
 
@@ -146,10 +146,10 @@ class MimeMail extends PhpMail implements ContainerFactoryPluginInterface {
     $subject = $message['subject'];
     $body = $message['body'];
 
-    $headers = isset($message['params']['headers']) ? $message['params']['headers'] : [];
-    $plain = isset($message['params']['plain']) ? $message['params']['plain'] : NULL;
-    $plaintext = isset($message['params']['plaintext']) ? $message['params']['plaintext'] : NULL;
-    $attachments = isset($message['params']['attachments']) ? $message['params']['attachments'] : [];
+    $headers = $message['params']['headers'] ?? [];
+    $plain = $message['params']['plain'] ?? NULL;
+    $plaintext = $message['params']['plaintext'] ?? NULL;
+    $attachments = $message['params']['attachments'] ?? [];
 
     $site_name = $this->configFactory->get('system.site')->get('name');
     $site_mail = $this->configFactory->get('system.site')->get('mail');

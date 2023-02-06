@@ -32,7 +32,7 @@ function mimemail_example_mail($key, &$message, $params) {
   // with the same structure as the $form array. We need to copy these values
   // to the appropriate place in the $message so that they get used when
   // sending the email.
-  $message['from'] = isset($params['headers']['From']) ? $params['headers']['From'] : NULL;
+  $message['from'] = $params['headers']['From'] ?? NULL;
 
   // Strip newline characters from e-mail subjects.
   $message['subject'] = isset($params['subject']) ? str_replace(["\r\n", "\r", "\n"], ' ', $params['subject']) : NULL;
